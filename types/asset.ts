@@ -16,6 +16,8 @@ type Asset = {
     conversion: string
     createdOn: Time
     updatedOn: Time
+    lastQuantity: number
+    lastValue: number
 }
 
 export default Asset;

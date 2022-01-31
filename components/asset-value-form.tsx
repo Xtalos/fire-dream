@@ -47,7 +47,7 @@ const AssetValueForm = ({ assetValue,onSubmit }: Props) => {
                         <input type="text" className="form-control" onChange={handleChangeDate} id="createdOn" defaultValue={formatDate(assetValue?.createdOn)}/>
                     </div>
                     <div className="mb-3 text-center">
-                        <button type="submit" className="mt-4 btn btn-lg btn-primary">Submit</button>
+                        <button type="submit" className="mt-4 btn btn-lg btn-dark">Submit</button>
                     </div>
                 </form>
             </div>

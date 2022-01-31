@@ -1,15 +1,16 @@
 import type { NextPage } from 'next'
 import Head from 'next/head';
-import { AssetList, Container } from '../components';
+import { AssetList, FireDreamContainer } from '../components';
 import styles from '../styles/Home.module.css'
 
 import { firestore } from '../firebase/webApp';
 
-import { collection, QueryDocumentSnapshot, DocumentData, query, where, limit, getDocs } from "@firebase/firestore";
+import { collection, QueryDocumentSnapshot, DocumentData, query, where, limit, getDocs, addDoc, updateDoc } from "@firebase/firestore";
 
 
 import { useEffect, useState } from 'react';
 import { Asset, AssetValue } from '../types';
+import { doc } from 'firebase/firestore';
 const usersCollection = collection(firestore, 'users');
 const assetsCollection = collection(firestore, 'assets');
 
@@ -54,6 +55,15 @@ const Home: NextPage = () => {
     setAssets(assets);
   };
 
+  const addValue = async (av:AssetValue) => {
+    const valueRef = await addDoc(collection(firestore, 'assetsValues'), av);
+    const assetRef = doc(firestore, 'assets/' + av.assetId);
+    await updateDoc(assetRef, {
+      lastQuantity:av.quantity,
+      lastValue:av.value
+    });
+  }
+
   useEffect(() => {
     // get the todos
     getUsers();
@@ -65,15 +75,15 @@ const Home: NextPage = () => {
   }, []);
 
   return (
-    <div>
+    <>
       <Head>
-        <title>Todos app</title>
+        <title>{process.env.APP_NAME}</title>
         <meta name="description" content="Next.js firebase todos app" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Container>
-        <AssetList assets={assets} onSubmit={(result:AssetValue) => console.log(result)}/>
-      </Container>
+      <FireDreamContainer>
+        <AssetList assets={assets} onSubmit={addValue}/>
+      </FireDreamContainer>
       <footer className={styles.footer}>
         <a
           href="#"
@@ -81,7 +91,7 @@ const Home: NextPage = () => {
         >
         </a>
       </footer>
-    </div>
+    </>
   )
 }
 export default Home
