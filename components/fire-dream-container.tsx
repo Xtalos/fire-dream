@@ -1,11 +1,23 @@
+import { useRouter } from 'next/router';
 import React, { ReactNode, FunctionComponent } from 'react';
 import { Container, Nav, Navbar } from 'react-bootstrap';
+import { Auth } from '../util/firebase-client';
 
 type Props = {
   children?: ReactNode
 }
 
 const FireDreamContainer: FunctionComponent = ({ children }: Props) => {
+  const router = useRouter();
+
+  const logout = async () => {
+    await Auth
+      .signOut()
+      .then(() => {
+        router.push("/");
+      });
+  };
+
   return (
     <>
       <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
@@ -26,6 +38,7 @@ const FireDreamContainer: FunctionComponent = ({ children }: Props) => {
               <Nav.Link href="/">Home</Nav.Link>
               <Nav.Link href="/charts">Charts</Nav.Link>
               <Nav.Link href="/rules">Rules</Nav.Link>
+              <Nav.Link onClick={() => logout()}>Logout</Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>

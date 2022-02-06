@@ -4,15 +4,17 @@ import Link from 'next/link';
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { Modal } from 'react-bootstrap';
-import { Asset, AssetValue } from '../types';
+import { Asset, AssetValue, Wallet } from '../types';
 import AssetValueForm from './asset-value-form';
+import { formatValue } from '../util/helpers';
 
 type Props = {
     assets: Asset[]
     onSubmit: Function
+    walletId: string
 }
 
-const AssetList = ({ assets, onSubmit }: Props) => {
+const AssetList = ({ assets, onSubmit, walletId }: Props) => {
     let totalValue = 0;
     let totalInvested = 0;
     const [assetValue, setAssetValue] = useState<AssetValue | null>(null);
@@ -35,16 +37,17 @@ const AssetList = ({ assets, onSubmit }: Props) => {
         <div className="row">
             <div className="col-10 offset-1">
                 <div className="row">
-                    <div className="col-12 d-flex flex-row-reverse">
-                        <Link href="/asset/new">
+                    <div className={ assets.length ? "col-12 d-flex flex-row-reverse" : "col-12 mt-5 text-center"} >
+                        <Link href={"/asset/new?wallet="+walletId}>
                             <a className="mb-5 btn btn-lg btn-dark" >Create Asset</a>
                         </Link>
                     </div>
                 </div>
+                {assets.length ?
                 <div className="row">
                     <div className="col-12">
                         <ul className="list-group">
-                            {assets.length && assets.map(asset => {
+                            {assets.map(asset => {
                                 const conversionAsset = asset.conversion == '1' ? false : assets.find(searched => searched.symbol == asset.conversion);
                                 const conversion = conversionAsset ? conversionAsset.lastValue : 1;
                                 totalValue += asset.lastValue * conversion;
@@ -55,9 +58,9 @@ const AssetList = ({ assets, onSubmit }: Props) => {
                                             <div className="col-3"><h5 className="p-2">{asset.name}</h5></div>
                                             <div className="col-2 p-2">{asset.invested}</div>
                                             <div className="col-3 p-2">{asset.lastQuantity}</div>
-                                            <div className="col-2 p-2">{asset.lastValue * conversion}</div>
+                                            <div className="col-2 p-2">{formatValue(asset.lastValue * conversion)}</div>
                                             <div className="col-1">
-                                                <Link href={"/asset/" + asset.id}>
+                                                <Link href={"/asset/" + asset.id + "?wallet=" + walletId}>
                                                     <a>
                                                         <img
                                                             alt=""
@@ -90,7 +93,7 @@ const AssetList = ({ assets, onSubmit }: Props) => {
                                     <div className="col-3"><h5 className="p-2">TOTAL</h5></div>
                                     <div className="col-2 p-2">{totalInvested}</div>
                                     <div className="col-3 p-2"></div>
-                                    <div className="col-2 p-2">{totalValue}</div>
+                                    <div className="col-2 p-2">{formatValue(totalValue)}</div>
                                 </div>
                             </li>
                         </ul>
@@ -105,6 +108,8 @@ const AssetList = ({ assets, onSubmit }: Props) => {
                             </Modal>}
                     </div>
                 </div>
+                : <></>
+                }
             </div>
         </div>
     );
