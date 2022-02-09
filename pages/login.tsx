@@ -1,4 +1,5 @@
 import { NextPage } from "next";
+import Link from "next/link";
 import React, { useState } from "react";
 import { Container } from "react-bootstrap";
 import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "../util/firebase-client";
@@ -32,7 +33,7 @@ const Login: NextPage = (_props: any) => {
               <button type="submit" onClick={signIn} className="mt-5 btn btn-lg btn-dark">Submit</button>
             </div>
             <div className="mt-4 text-center">
-              <a href="/register" role="button">or register</a>
+              <Link href="/register">or register</Link>
             </div>
           </form>
         </div>
