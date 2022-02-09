@@ -10,9 +10,6 @@ import WalletForm from "../../components/wallet-form";
 
 export const getServerSideProps = getServerSidePropsWithAuth;
 
-const assetsCollection = collection(firestore, 'assets');
-
-
 const WalletPage = (props: ServerProps) => {
   const router = useRouter();
   const { id, edit } = router.query;
