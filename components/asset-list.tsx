@@ -50,7 +50,7 @@ const AssetList = ({ assets, onSubmit, walletId }: Props) => {
                             {assets.map(asset => {
                                 const conversionAsset = asset.conversion == '1' ? false : assets.find(searched => searched.symbol == asset.conversion);
                                 const conversion = conversionAsset ? conversionAsset.lastValue : 1;
-                                totalValue += asset.lastValue * conversion;
+                                totalValue += asset.lastValue * conversion * asset.lastQuantity;
                                 totalInvested += asset.invested*1; //hack to avoid string conversion
                                 return (
                                     <li className="list-group-item" key={asset.id}>
@@ -58,7 +58,7 @@ const AssetList = ({ assets, onSubmit, walletId }: Props) => {
                                             <div className="col-3"><h5 className="p-2">{asset.name}</h5></div>
                                             <div className="col-2 p-2">{asset.invested}</div>
                                             <div className="col-3 p-2">{asset.lastQuantity}</div>
-                                            <div className="col-2 p-2">{formatValue(asset.lastValue * conversion)}</div>
+                                            <div className="col-2 p-2">{formatValue(asset.lastValue * conversion * asset.lastQuantity)}</div>
                                             <div className="col-1">
                                                 <Link href={"/asset/" + asset.id + "?wallet=" + walletId}>
                                                     <a>
@@ -91,7 +91,7 @@ const AssetList = ({ assets, onSubmit, walletId }: Props) => {
                             <li className="list-group-item bg-dark text-white" key="totalKey">
                                 <div className="row">
                                     <div className="col-3"><h5 className="p-2">TOTAL</h5></div>
-                                    <div className="col-2 p-2">{totalInvested}</div>
+                                    <div className="col-2 p-2">{formatValue(totalInvested)}</div>
                                     <div className="col-3 p-2"></div>
                                     <div className="col-2 p-2">{formatValue(totalValue)}</div>
                                 </div>
