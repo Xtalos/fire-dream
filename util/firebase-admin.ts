@@ -1,7 +1,7 @@
 import { initializeApp, cert } from "firebase-admin/app";
 import { getAuth } from 'firebase-admin/auth';
 
-const { private_key } = JSON.parse(process.env.NEXT_PRIVATE_FIREBASE_ADMIN_PRIVATE_KEY || '{}');
+const { private_key } = JSON.parse(process.env.NEXT_PRIVATE_FIREBASE_ADMIN_PRIVATE_KEY as string);
 initializeApp({
     credential: cert({
         privateKey: private_key,
