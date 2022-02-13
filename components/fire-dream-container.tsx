@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { useRouter } from 'next/router';
 import React, { ReactNode, FunctionComponent } from 'react';
 import { Container, Nav, Navbar } from 'react-bootstrap';
@@ -24,7 +25,7 @@ const FireDreamContainer: FunctionComponent = ({ children }: Props) => {
         <Container>
           <Navbar.Brand href="/">
             <img
-              alt=""
+              alt="logo"
               src="/firedream-logo.svg"
               width="30"
               height="30"
@@ -43,7 +44,7 @@ const FireDreamContainer: FunctionComponent = ({ children }: Props) => {
           </Navbar.Collapse>
         </Container>
       </Navbar>
-      <div className="container-fluid p-5">{children}</div>
+      <div className="container-fluid p-lg-5">{children}</div>
 
     </>
   )

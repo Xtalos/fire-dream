@@ -7,6 +7,7 @@ import { Asset, AssetValue, Wallet } from '../../types';
 import Head from "next/head";
 import { getServerSidePropsWithAuth, ServerProps } from "../../util/get-server-side-props-with-auth";
 import WalletForm from "../../components/wallet-form";
+import { updateQuotes } from '../../util/services';
 
 export const getServerSideProps = getServerSidePropsWithAuth;
 
@@ -60,6 +61,11 @@ const WalletPage = (props: ServerProps) => {
     router.reload();
   }
 
+  const updateAssetsQuotes = async (assets:Asset[]) => {
+    await updateQuotes(assets);
+    router.reload();
+  }
+
   useEffect(() => {
     switch (id) {
       case undefined: return void 0;
@@ -82,7 +88,7 @@ const WalletPage = (props: ServerProps) => {
         { id && id !== 'new' && !edit ? (
         <>
         <h1 className="text-center">{wallet?.label}</h1>
-        <AssetList assets={assets} walletId={id as string} onSubmit={addValue}/>
+        <AssetList assets={assets} walletId={id as string} onSubmit={addValue} updateQuotes={updateAssetsQuotes}/>
         </>) : <></>}
 
         { id === 'new' || edit ? <WalletForm wallet={wallet} onSubmit={saveWallet}/> : <></>}

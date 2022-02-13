@@ -2,7 +2,7 @@ import { NextPage } from "next";
 import Link from "next/link";
 import React, { useState } from "react";
 import { Container } from "react-bootstrap";
-import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "../util/firebase-client";
+import { Auth, signInWithEmailAndPassword } from "../util/firebase-client";
 
 const Login: NextPage = (_props: any) => {
   const [email, setEmail] = useState('');
