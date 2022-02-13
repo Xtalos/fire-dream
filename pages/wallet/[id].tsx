@@ -87,7 +87,7 @@ const WalletPage = (props: ServerProps) => {
         
         { id && id !== 'new' && !edit ? (
         <>
-        <h1 className="text-center">{wallet?.label}</h1>
+        <h1 className="mt-4 text-center">{wallet?.label}</h1>
         <AssetList assets={assets} walletId={id as string} onSubmit={addValue} updateQuotes={updateAssetsQuotes}/>
         </>) : <></>}
 

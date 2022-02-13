@@ -22,9 +22,9 @@ const AssetForm = ({ asset, onSubmit }: Props) => {
 
     return (
         <div className="row">
-            <div className="col-10 offset-1">
+            <div className="col-lg-10 offset-lg-1">
                 <form onSubmit={handleSubmit}>
-                    <div className="row">
+                    <div className="row mt-5">
                         <div className="col-md-6">
                             <div className="mb-3">
                                 <label htmlFor="name" className="form-label">Name</label>

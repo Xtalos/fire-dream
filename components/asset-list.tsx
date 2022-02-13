@@ -72,32 +72,34 @@ const AssetList = ({ assets, onSubmit, walletId, updateQuotes }: Props) => {
                                                 <div className="col-sm-2 p-2 p-lg-2 text-center">{formatValue(asset.invested)}</div>
                                                 <div className="col-sm-2 p-2 p-lg-2 text-center">{formatValue(assetsValues.get(asset.id).value)}</div>
                                                 <div className="col-sm-2 p-2 p-lg-2 text-center">{formatRatio(assetsValues.get(asset.id).ratio)}</div>
-                                                <div className="col-sm-3 text-center">
-                                                    <div className="d-inline ml-1 mr-auto">
-                                                        <Link href={"/asset/" + asset.id + "?wallet=" + walletId}>
-                                                            <a>
+                                                <div className="col-sm-3">
+                                                    <div className="row">
+                                                        <div className="col text-center">
+                                                            <Link href={"/asset/" + asset.id + "?wallet=" + walletId}>
+                                                                <a>
+                                                                    <img
+                                                                        title="edit"
+                                                                        alt="edit"
+                                                                        src="/edit.svg"
+                                                                        width="30"
+                                                                        height="30"
+                                                                        className="m-2"
+                                                                    />
+                                                                </a>
+                                                            </Link>
+                                                        </div>
+                                                        <div className="col text-center">
+                                                            <a role="button" onClick={() => changeAssetValueHandler(asset)}>
                                                                 <img
-                                                                    title="edit"
-                                                                    alt="edit"
-                                                                    src="/edit.svg"
+                                                                    title="value"
+                                                                    alt="value"
+                                                                    src="/edit-value.svg"
                                                                     width="30"
                                                                     height="30"
                                                                     className="m-2"
                                                                 />
                                                             </a>
-                                                        </Link>
-                                                    </div>
-                                                    <div className="d-inline ml-5 mr-1">
-                                                        <a role="button" onClick={() => changeAssetValueHandler(asset)}>
-                                                            <img
-                                                                title="value"
-                                                                alt="value"
-                                                                src="/edit-value.svg"
-                                                                width="30"
-                                                                height="30"
-                                                                className="m-2"
-                                                            />
-                                                        </a>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -110,7 +112,7 @@ const AssetList = ({ assets, onSubmit, walletId, updateQuotes }: Props) => {
                                         <div className="col-sm-3 p-1 p-lg-2 text-center">TOTAL</div>
                                         <div className="col-sm-2 p-1 p-lg-2 text-center">{formatValue(assetsValues.get('total').invested)}</div>
                                         <div className="col-sm-2 p-1 p-lg-2 text-center">{formatValue(assetsValues.get('total').value)}</div>
-                                        <div className="col-sm-2 p-1 p-lg-2 text-center">&#916; = {formatRatio(assetsValues.get('total').value/assetsValues.get('total').invested - 1)} %</div>
+                                        <div className="col-sm-2 p-1 p-lg-2 text-center">&#916; = {formatRatio(assetsValues.get('total').value / assetsValues.get('total').invested - 1)} %</div>
                                     </div>
                                 </li>
                             </ul>
