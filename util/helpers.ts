@@ -36,7 +36,7 @@ export const getAssetsValues = (assets:Asset[]) => {
     assets.forEach(asset => {
         const conversion = conversionMap.get(asset.conversion) || 1;
         const value = conversion * asset.lastValue * asset.lastQuantity;
-        totalValue += value;
+        totalValue += value || 0;
         totalInvested += parseFloat(''+asset.invested);
         assetsValues.set(asset.id,{
             value
