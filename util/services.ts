@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { Asset, AssetValue } from '../types';
-import { writeBatch, doc, collection } from 'firebase/firestore';
+import { writeBatch, doc, collection, getDoc } from 'firebase/firestore';
 import { firestore } from './firebase-client';
 
 
@@ -16,6 +16,8 @@ export const updateQuotes = async (assets:Asset[]) => {
         batch.set(assetValueRef,quote);
         batch.update(assetRef,{ lastValue:quote.value });
     });
-
-    return await batch.commit();
+    await batch.commit();
+    const assetPromises = assets.map(asset => getDoc(doc(firestore, 'assets/' + asset.id)).then(assetResult => ({...assetResult.data(),id:asset.id} as Asset)));
+    
+    return await Promise.all(assetPromises);
 }

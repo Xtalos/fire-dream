@@ -8,6 +8,7 @@ import Head from "next/head";
 import { getServerSidePropsWithAuth, ServerProps } from "../../util/get-server-side-props-with-auth";
 import WalletForm from "../../components/wallet-form";
 import { updateQuotes } from '../../util/services';
+import { getAssetsValues } from '../../util/helpers';
 
 export const getServerSideProps = getServerSidePropsWithAuth;
 
@@ -17,6 +18,7 @@ const WalletPage = (props: ServerProps) => {
   const walletRef = doc(firestore, 'wallets/' + id);
   const [wallet, setWallet] = useState<Wallet | undefined>();
   const [assets, setAssets] = useState<Asset[]>([]);
+  let assetsValues = getAssetsValues(assets);
 
   const getWallet = async () => {
     // construct a query to get up to 10 undone todos 
@@ -27,7 +29,6 @@ const WalletPage = (props: ServerProps) => {
 
     // set it to state
     const w = result.data() as Wallet;
-    console.log(w);
     let asts:Asset[] = [];
     if(w.assets) {
       const results = Object.values(w.assets).map(async assetRef => {
@@ -35,7 +36,6 @@ const WalletPage = (props: ServerProps) => {
       });
       asts = await Promise.all(results);
     } 
-    console.log('assets',asts);
     setAssets(asts);
     setWallet(w);
   };
@@ -46,8 +46,14 @@ const WalletPage = (props: ServerProps) => {
       const docRef = await addDoc(collection(firestore, 'wallets'), value);
       router.replace('/wallet/' + docRef.id);
     } else {
-      const result = await updateDoc(walletRef, value);
-      router.replace('/');
+      const walletUpdated = {
+        ...value,
+        invested: assetsValues.get('total').invested,
+        lastValue: assetsValues.get('total').value,
+        risk: assetsValues.get('total').globalRisk
+      }
+      const result = await updateDoc(walletRef, walletUpdated);
+      router.replace('/wallet/' + id);
     }
   }
 
@@ -62,8 +68,10 @@ const WalletPage = (props: ServerProps) => {
   }
 
   const updateAssetsQuotes = async (assets:Asset[]) => {
-    await updateQuotes(assets);
-    router.reload();
+    const assetsUpdated = await updateQuotes(assets);
+    assetsValues = getAssetsValues(assetsUpdated);
+    if(wallet) await saveWallet(wallet);
+    setAssets(assetsUpdated);
   }
 
   useEffect(() => {
@@ -88,7 +96,11 @@ const WalletPage = (props: ServerProps) => {
         { id && id !== 'new' && !edit ? (
         <>
         <h1 className="mt-4 text-center">{wallet?.label}</h1>
-        <AssetList assets={assets} walletId={id as string} onSubmit={addValue} updateQuotes={updateAssetsQuotes}/>
+        <AssetList assets={assets} 
+          walletId={id as string} 
+          assetsValues={assetsValues} 
+          onSubmit={addValue} 
+          updateQuotes={updateAssetsQuotes}/>
         </>) : <></>}
 
         { id === 'new' || edit ? <WalletForm wallet={wallet} onSubmit={saveWallet}/> : <></>}

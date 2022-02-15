@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import React from 'react';
 import { Wallet } from '../types';
+import { formatRatio, formatRisk, formatValue } from '../util/helpers';
 
 type Props = {
     wallets: Wallet[]
@@ -10,6 +11,11 @@ type Props = {
 const WalletList = ({ wallets }: Props) => {
     let totalValue = 0;
     let totalInvested = 0;
+
+    wallets.forEach(wallet => {
+        totalInvested += parseFloat(''+wallet.invested);
+        totalValue += parseFloat(''+wallet.lastValue);
+    });
 
     return (
         <div className="row">
@@ -29,7 +35,7 @@ const WalletList = ({ wallets }: Props) => {
                                     <div className="col-sm-3 p-1 p-lg-2 text-center">Wallet</div>
                                     <div className="col-sm-2 p-1 p-lg-2 text-center">Invested</div>
                                     <div className="col-sm-2 p-1 p-lg-2 text-center">Value</div>
-                                    <div className="col-sm-2 p-1 p-lg-2 text-center">Ratio</div>
+                                    <div className="col-sm-2 p-1 p-lg-2 text-center">Risk</div>
                                     <div className="col-sm-3 p-1 p-lg-2 text-center">Actions</div>
                                 </div>
                             </li>
@@ -38,9 +44,9 @@ const WalletList = ({ wallets }: Props) => {
                                     <li className="list-group-item" key={wallet.id}>
                                         <div className="row">
                                             <div className="col-sm-3 p-2 p-lg-2 text-center">{wallet.label}</div>
-                                            <div className="col-sm-2 p-2 p-lg-2 text-center"></div>
-                                            <div className="col-sm-2 p-2 p-lg-2 text-center"></div>
-                                            <div className="col-sm-2 p-2 p-lg-2 text-center"></div>
+                                            <div className="col-sm-2 p-2 p-lg-2 text-center">{formatValue(wallet.invested)}</div>
+                                            <div className="col-sm-2 p-2 p-lg-2 text-center">{formatValue(wallet.lastValue)}</div>
+                                            <div className="col-sm-2 p-2 p-lg-2 text-center">{formatRisk(wallet.risk)}</div>
                                             <div className="col-sm-3">
                                                 <div className="row">
                                                     <div className="col text-center">
@@ -79,9 +85,9 @@ const WalletList = ({ wallets }: Props) => {
                             <li className="list-group-item bg-dark text-white" key="totalKey">
                                 <div className="row">
                                     <div className="col-sm-3 p-1 p-lg-2 text-center">TOTAL</div>
-                                    <div className="col-sm-2 p-1 p-lg-2 text-center">{totalInvested}</div>
-                                    <div className="col-sm-2 p-1 p-lg-2 text-center"></div>
-                                    <div className="col-sm-2 p-1 p-lg-2 text-center">&#916; = {totalValue}</div>
+                                    <div className="col-sm-2 p-1 p-lg-2 text-center">{formatValue(totalInvested)}</div>
+                                    <div className="col-sm-2 p-1 p-lg-2 text-center">{formatValue(totalValue)}</div>
+                                    <div className="col-sm-2 p-1 p-lg-2 text-center">&#916; = {formatRatio((totalValue-totalInvested)/totalInvested)} %</div>
                                 </div>
                             </li>
                         </ul>
