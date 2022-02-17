@@ -47,7 +47,7 @@ const AssetList = ({ assets, onSubmit, walletId, updateQuotes, assetsValues }: P
                         </Link>
                     </div>
                 </div>
-                {assetsValues.get('total').totalTargetRatio != 100 &&
+                {assetsValues.get('total').totalTargetRatio != 1 &&
                     <Alert variant='danger'>
                         Total Target Ratio is {formatRatio(assetsValues.get('total').totalTargetRatio)}
                     </Alert>

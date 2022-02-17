@@ -19,14 +19,7 @@ const AssetPage = (props: ServerProps) => {
   console.log('wallet', wallet);
 
   const getAsset = async () => {
-    // construct a query to get up to 10 undone todos 
-    // get the todos
     const result = await getDoc(assetRef);
-
-    // map through todos adding them to an array
-
-    // set it to state
-    console.log(result);
     setAsset(result);
   };
 
@@ -40,9 +33,10 @@ const AssetPage = (props: ServerProps) => {
         [value.name]: docRef
       }
       await updateDoc(walletRef, wallet);
-      window.location.replace('/asset/' + docRef.id);
+      router.replace('/asset/' + docRef.id)
     } else {
-      const result = await updateDoc(assetRef, value);
+      await updateDoc(assetRef, value);
+      router.replace('/wallet/' + wallet);
     }
   }
 

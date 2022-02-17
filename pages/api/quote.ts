@@ -44,9 +44,7 @@ export default async function handler(
     }).then(function (response) {
       const {quoteResponse:{result}} = response.data;
       result.forEach((element:ApiResponseValue) => {
-        console.log(element.symbol,element.regularMarketPrice);
         const af = assets.find(asset => asset.symbol == element.symbol);
-        console.log(af);
         af && values.push({
           value: element.regularMarketPrice,
           assetId: af.id,
