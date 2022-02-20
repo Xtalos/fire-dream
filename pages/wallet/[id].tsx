@@ -29,13 +29,13 @@ const WalletPage = (props: ServerProps) => {
 
     // set it to state
     const w = result.data() as Wallet;
-    let asts:Asset[] = [];
-    if(w.assets) {
+    let asts: Asset[] = [];
+    if (w.assets) {
       const results = Object.values(w.assets).map(async assetRef => {
-        return getDoc(assetRef).then(assetResult => ({...assetResult.data(),id:assetRef.id} as Asset));
+        return getDoc(assetRef).then(assetResult => ({ ...assetResult.data(), id: assetRef.id } as Asset));
       });
       asts = await Promise.all(results);
-    } 
+    }
     setAssets(asts);
     setWallet(w);
   };
@@ -53,24 +53,24 @@ const WalletPage = (props: ServerProps) => {
         risk: assetsValues.get('total').globalRisk
       }
       const result = await updateDoc(walletRef, walletUpdated);
-      router.replace('/wallet/' + id);
+      router.replace('/');
     }
   }
 
-  const addValue = async (av:AssetValue) => {
+  const addValue = async (av: AssetValue) => {
     const valueRef = await addDoc(collection(firestore, 'assetsValues'), av);
     const assetRef = doc(firestore, 'assets/' + av.assetId);
     await updateDoc(assetRef, {
-      lastQuantity:av.quantity,
-      lastValue:av.value
+      lastQuantity: av.quantity,
+      lastValue: av.value
     });
     router.reload();
   }
 
-  const updateAssetsQuotes = async (assets:Asset[]) => {
+  const updateAssetsQuotes = async (assets: Asset[]) => {
     const assetsUpdated = await updateQuotes(assets);
     assetsValues = getAssetsValues(assetsUpdated);
-    if(wallet) await saveWallet(wallet);
+    if (wallet) await saveWallet(wallet);
     setAssets(assetsUpdated);
   }
 
@@ -92,18 +92,18 @@ const WalletPage = (props: ServerProps) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <FireDreamContainer>
-        
-        { id && id !== 'new' && !edit ? (
-        <>
-        <h1 className="mt-4 text-center">{wallet?.label}</h1>
-        <AssetList assets={assets} 
-          walletId={id as string} 
-          assetsValues={assetsValues} 
-          onSubmit={addValue} 
-          updateQuotes={updateAssetsQuotes}/>
-        </>) : <></>}
 
-        { id === 'new' || edit ? <WalletForm wallet={wallet} onSubmit={saveWallet}/> : <></>}
+        {id && id !== 'new' && !edit ? (
+          <>
+            <h1 className="mt-4 text-center">{wallet?.label}</h1>
+            <AssetList assets={assets}
+              walletId={id as string}
+              assetsValues={assetsValues}
+              onSubmit={addValue}
+              updateQuotes={updateAssetsQuotes} />
+          </>) : <></>}
+
+        {id === 'new' || edit ? <WalletForm wallet={wallet} onSubmit={saveWallet} /> : <></>}
       </FireDreamContainer>
     </>
   )

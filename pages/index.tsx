@@ -7,12 +7,15 @@ import { useEffect, useState } from 'react';
 import { Wallet } from '../types';
 import { getServerSidePropsWithAuth, ServerProps } from '../util/get-server-side-props-with-auth';
 import WalletList from '../components/wallet-list';
+import { updateWalletsQuotes } from '../util/services';
+import { useRouter } from 'next/router';
 
 const walletsCollection = collection(firestore, 'wallets');
 
 export const getServerSideProps = getServerSidePropsWithAuth;
 
 const Home = (props: ServerProps) => {
+  const router = useRouter();
   const [wallets, setWallets] = useState<Wallet[]>([]);
 
   const getWallets = async () => {
@@ -23,7 +26,7 @@ const Home = (props: ServerProps) => {
       result.push(snapshot);
     });
 
-    const w = result.map(item => ({...item.data(),id:item.id} as Wallet));
+    const w = result.map(item => ({ ...item.data(), id: item.id } as Wallet));
     setWallets(w);
   };
 
@@ -36,6 +39,11 @@ const Home = (props: ServerProps) => {
     // }, 2000)
   }, []);
 
+  const updateQuotes = async (wallts: Wallet[]) => {
+    const updatedWallets = await updateWalletsQuotes(wallts);
+    setWallets(updatedWallets);
+  }
+
   return (
     <>
       <Head>
@@ -44,7 +52,7 @@ const Home = (props: ServerProps) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <FireDreamContainer>
-        <WalletList wallets={wallets}/>
+        <WalletList wallets={wallets} updateQuotes={updateQuotes} />
       </FireDreamContainer>
       <footer className={styles.footer}>
         <a

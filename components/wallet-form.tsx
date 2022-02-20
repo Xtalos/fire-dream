@@ -33,7 +33,10 @@ const WalletForm = ({ wallet, onSubmit }: Props) => {
 
                         </div>
                         <div className="col-md-6">
-
+                            <div className="mb-3">
+                                <label htmlFor="label" className="form-label">Target Ratio</label>
+                                <input type="numeric" className="form-control" onChange={handleChange} id="targetRatio" defaultValue={wallet?.targetRatio} />
+                            </div>
                         </div>
                     </div>
                     <div className="row">

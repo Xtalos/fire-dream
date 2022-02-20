@@ -4,6 +4,7 @@ type Wallet = {
     id: string
     label: string
     invested: number
+    targetRatio: number
     lastValue: number
     risk: number
     owner: string
