@@ -30,7 +30,7 @@ export default async function handler(
   const { assets } = req.body as { assets: Asset[] };
   const symbols = assets.filter(asset => asset.symbol && asset.symbol !== 'EUR').map(asset => asset.symbol);
   const chunks = splitIntoChunks(symbols,10);
-  const createdOn = { seconds:parseInt(moment().format('X')) };
+  const createdOn = parseInt(moment().format('X'));
 
   const apiUrl = process.env.YAHOO_FINANCE_APIURL;
   const xApiKey = process.env.YAHOO_FINANCE_XAPIKEY;

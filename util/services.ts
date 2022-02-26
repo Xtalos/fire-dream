@@ -52,3 +52,13 @@ export const updateWalletsQuotes = async (wallets: Wallet[]) => {
 
     return updatedWallets;
 }
+
+export const updateAssetValuesTimes = async (assetValues: AssetValue[]) => {
+    const batch = writeBatch(firestore);
+    assetValues.forEach(av => {
+        const assetValueRef = doc(firestore, 'assetsValues/' + av.id);
+        batch.update(assetValueRef, { createdOn: av.createdOn });
+    });
+    await batch.commit();
+    return 0;
+}

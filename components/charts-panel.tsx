@@ -2,14 +2,16 @@
 import React from 'react';
 import { Asset, Wallet } from '../types';
 import { getAssetsValues } from '../util/helpers';
-import PieWrap, { BasicData } from './charts/pie-wrap';
+import Pie, { BasicData } from './charts/pie';
+import TimeSeriesChart from './charts/time-series-chart';
 
 type Props = {
     wallets: Wallet[]
     assets: Asset[]
+    timeValues: any[]
 }
 
-const ChartsPanel = ({ wallets, assets }: Props) => {
+const ChartsPanel = ({ wallets, assets, timeValues }: Props) => {
     const assetsValues = getAssetsValues(assets);
 
     const toPieData = (assets: Asset[], field: 'category' | 'name'): BasicData[] => {
@@ -28,10 +30,17 @@ const ChartsPanel = ({ wallets, assets }: Props) => {
             <div className="col-lg-10 offset-lg-1">
                 <div className="row mt-5">
                     <div className="col-12">
-                        <PieWrap data={toPieData(assets, 'name')} />
+                        <Pie data={toPieData(assets, 'name')} />
                     </div>
                 </div>
             </div>
+            {timeValues.length ? <div className="col-lg-10 offset-lg-1">
+                <div className="row mt-5">
+                    <div className="col-12">
+                        <TimeSeriesChart data={timeValues} />
+                    </div>
+                </div>
+            </div> : <></>}
         </div>
     );
 }

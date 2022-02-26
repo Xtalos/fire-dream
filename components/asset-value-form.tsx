@@ -21,7 +21,7 @@ const AssetValueForm = ({ assetValue,onSubmit }: Props) => {
         newAssetValue = {...newAssetValue, [id]: value};
       }
     
-    const formatDate = (date:Time) => date && moment.unix(date.seconds).format('YYYY-MM-DD');
+    const formatDate = (date:number) => date && moment.unix(date).format('YYYY-MM-DD');
 
     const handleChangeDate = (event:React.ChangeEvent<HTMLInputElement>) => {
         const id = event.target.id;

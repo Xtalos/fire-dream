@@ -8,7 +8,7 @@ type Props = {
   data: BasicData[]
 }
 
-const PieWrap = ({ data }: Props) => {
+const Pie = ({ data }: Props) => {
   useEffect(() => {
     const columns = data.reduce((acc:any[],d) => [...acc,[d.name,d.value]],[]);
     import('c3').then(c3 => {
@@ -32,4 +32,4 @@ const PieWrap = ({ data }: Props) => {
   );
 }
 
-export default PieWrap;
+export default Pie;

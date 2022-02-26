@@ -23,7 +23,7 @@ const AssetList = ({ assets, onSubmit, walletId, updateQuotes, assetsValues }: P
             assetId: asset.id,
             quantity: 0,
             value: 0,
-            createdOn: { seconds: parseInt(moment().format('X')) }
+            createdOn: parseInt(moment().format('X'))
         })
     }
 
