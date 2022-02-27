@@ -8,7 +8,7 @@ import TimeSeriesChart from './charts/time-series-chart';
 type Props = {
     wallets: Wallet[]
     assets: Asset[]
-    timeValues: any[]
+    timeValues: any
 }
 
 const ChartsPanel = ({ wallets, assets, timeValues }: Props) => {
@@ -27,17 +27,31 @@ const ChartsPanel = ({ wallets, assets, timeValues }: Props) => {
 
     return (
         <div className="row">
+            {timeValues.timeTotalValues.length ? <div className="col-lg-10 offset-lg-1">
+                <div className="row mt-5">
+                    <div className="col-12">
+                        <TimeSeriesChart data={timeValues.timeTotalValues} graphId='timeTotalValues' title='Total Value'/>
+                    </div>
+                </div>
+            </div> : <></>}
             <div className="col-lg-10 offset-lg-1">
                 <div className="row mt-5">
                     <div className="col-12">
-                        <Pie data={toPieData(assets, 'name')} />
+                        <Pie data={toPieData(assets, 'name')} graphId='assetsComposition' title='Assets Composition'/>
                     </div>
                 </div>
             </div>
-            {timeValues.length ? <div className="col-lg-10 offset-lg-1">
+            {timeValues.timeCategoryValues.length ? <div className="col-lg-10 offset-lg-1">
                 <div className="row mt-5">
                     <div className="col-12">
-                        <TimeSeriesChart data={timeValues} />
+                        <TimeSeriesChart data={timeValues.timeCategoryValues} graphId='timeCategoryValues' title='Categories Values'/>
+                    </div>
+                </div>
+            </div> : <></>}
+            {timeValues.timeAssetValues.length ? <div className="col-lg-10 offset-lg-1">
+                <div className="row mt-5">
+                    <div className="col-12">
+                        <TimeSeriesChart data={timeValues.timeAssetValues} graphId='timeAssetValues' title='Assets Values'/>
                     </div>
                 </div>
             </div> : <></>}

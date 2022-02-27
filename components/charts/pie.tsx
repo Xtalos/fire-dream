@@ -5,15 +5,17 @@ export type BasicData = {
   value: number
 }
 type Props = {
-  data: BasicData[]
+  data: BasicData[],
+  graphId: string,
+  title: string
 }
 
-const Pie = ({ data }: Props) => {
+const Pie = ({ data, graphId, title }: Props) => {
   useEffect(() => {
     const columns = data.reduce((acc:any[],d) => [...acc,[d.name,d.value]],[]);
     import('c3').then(c3 => {
       c3.generate({
-        bindto: "#chart",
+        bindto: "#"+graphId,
         data: {
           columns,
           type: 'pie'
@@ -26,7 +28,8 @@ const Pie = ({ data }: Props) => {
   return (
     <div className="row">
       <div className="col-12 overflow-auto">
-        <div id="chart" />
+      <div className="text-center"><h5>{title}</h5></div>
+        <div id={graphId} />
       </div>
     </div>
   );

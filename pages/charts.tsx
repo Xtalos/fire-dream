@@ -2,16 +2,14 @@ import Head from 'next/head';
 import { FireDreamContainer } from '../components';
 import styles from '../styles/Home.module.css'
 import { firestore } from '../util/firebase-client';
-import { collection, QueryDocumentSnapshot, DocumentData, query, where, getDocs, getDoc, Firestore, getFirestore, Timestamp } from "@firebase/firestore";
+import { collection, QueryDocumentSnapshot, DocumentData, query, where, getDocs, getDoc } from "@firebase/firestore";
 import { useEffect, useState } from 'react';
 import { Asset, AssetValue, Wallet } from '../types';
 import { getServerSidePropsWithAuth, ServerProps } from '../util/get-server-side-props-with-auth';
-import { useRouter } from 'next/router';
 import ChartsPanel from '../components/charts-panel';
 import moment from 'moment';
 import { orderBy } from 'firebase/firestore';
 import { getAssetsValues } from '../util/helpers';
-import { updateAssetValuesTimes } from '../util/services';
 
 const MONTHS = 6;
 const walletsCollection = collection(firestore, 'wallets');
@@ -20,11 +18,11 @@ const assetValueCollection = collection(firestore, 'assetsValues');
 export const getServerSideProps = getServerSidePropsWithAuth;
 
 const Charts = (props: ServerProps) => {
-  const router = useRouter();
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [assets, setAssets] = useState<Asset[]>([]);
-  const [timeAxe, setTimeAxe] = useState<any[]>([]);
-  const [timeValues, setTimeValues] = useState<any[]>([]);
+  const [timeValues, setTimeValues] = useState<{timeAssetValues:any[],timeCategoryValues:any[],timeTotalValues:any[]}>(
+    {timeAssetValues:[],timeCategoryValues:[],timeTotalValues:[]}
+  );
 
   const getWallets = async () => {
     const walletsQuery = query(walletsCollection, where('owner', '==', props.authUserId));
@@ -45,8 +43,13 @@ const Charts = (props: ServerProps) => {
 
     setAssets(a);
     setWallets(w);
-    const tv = await calculateTimeSeriesValues(a);
-    setTimeValues(checkTimeValuesConsistence(tv) ? tv : []);
+    let tv = await calculateTimeSeriesValues(a);
+    tv = {
+      timeAssetValues: checkTimeValuesConsistence(tv.timeAssetValues) ? tv.timeAssetValues : [],
+      timeCategoryValues: checkTimeValuesConsistence(tv.timeCategoryValues) ? tv.timeCategoryValues : [],
+      timeTotalValues: checkTimeValuesConsistence(tv.timeTotalValues) ? tv.timeTotalValues : []
+    }
+    setTimeValues(tv);
   };
 
   const checkTimeValuesConsistence = (tv:any[]) => {
@@ -69,7 +72,6 @@ const Charts = (props: ServerProps) => {
       ta.push(past.format('YYYY-MM-DD'));
       past.add(7, 'days');
     }
-    setTimeAxe([...ta])
     return ta;
   }
 
@@ -88,14 +90,29 @@ const Charts = (props: ServerProps) => {
     });
     await Promise.all(resultPromise);
     const assetValues = result.map(r => ({...r.data(),id:r.id}) as AssetValue);
-    getTimesAxe();
+    const timeAxe = getTimesAxe();
     const timeAssetValues = assets.reduce((acc:any[],asset:Asset)=>{
       const alreadyExists = acc.find(a => a[0] === asset.name);
       return alreadyExists !== undefined ? acc : [...acc,[asset.name]]
     },[timeAxe]);
+
+    const timeCategoryValues = assets.reduce((acc:any[],asset:Asset)=>{
+      const alreadyExists = acc.find(a => a[0] === asset.category);
+      return alreadyExists !== undefined ? acc : [...acc,[asset.category]]
+    },[timeAxe]);
+
+    const timeTotalValues = [timeAxe,['total']];
+
     timeAxe.slice(1).forEach((t,i) => {
       const singleDateValue = calculateSingleDateValues(t,assets,assetValues);
+      timeTotalValues[1].push(singleDateValue.get('total').value);
       assets.forEach(asset => {
+        let categoryIdx = timeCategoryValues.findIndex(tav => tav[0] === asset.category);
+        if(timeCategoryValues[categoryIdx].length === (i+1)) {
+          timeCategoryValues[categoryIdx].push(singleDateValue.get(asset.id).value);
+        } else {
+          timeCategoryValues[categoryIdx][i+1] += singleDateValue.get(asset.id).value;
+        }
         const idx = timeAssetValues.findIndex(tav => tav[0] === asset.name);
         if(timeAssetValues[idx].length === (i+1)) {
           timeAssetValues[idx].push(singleDateValue.get(asset.id).value);
@@ -105,7 +122,7 @@ const Charts = (props: ServerProps) => {
       });
     });
 
-    return timeAssetValues;
+    return {timeAssetValues,timeCategoryValues,timeTotalValues};
   }
 
 /**

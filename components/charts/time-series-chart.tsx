@@ -5,15 +5,17 @@ export type BasicData = {
   value: number
 }
 type Props = {
-  data: any[]
+  data: any[],
+  graphId: string,
+  title: string
 }
 
-const TimeSeriesChart = ({ data }: Props) => {
+const TimeSeriesChart = ({ data, graphId, title }: Props) => {
   useEffect(() => {
     //const columns = data.reduce((acc: any[], d) => [...acc, [d.name, d.value]], []);
     import('c3').then(c3 => {
       c3.generate({
-        bindto: "#time-series-chart",
+        bindto: "#" + graphId,
         data: {
           x: 'x',
           //        xFormat: '%Y%m%d', // 'xFormat' can be used as custom format of 'x'
@@ -35,7 +37,8 @@ const TimeSeriesChart = ({ data }: Props) => {
   return (
     <div className="row">
       <div className="col-12 overflow-auto">
-        <div id="time-series-chart" />
+        <div className="text-center"><h5>{title}</h5></div>
+        <div id={graphId} />
       </div>
     </div>
   );
