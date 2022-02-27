@@ -2,7 +2,7 @@ import Head from 'next/head';
 import { FireDreamContainer } from '../components';
 import styles from '../styles/Home.module.css'
 import { firestore } from '../util/firebase-client';
-import { collection, QueryDocumentSnapshot, DocumentData, query, where, getDocs, getDoc } from "@firebase/firestore";
+import { collection, QueryDocumentSnapshot, DocumentData, query, where, getDocs, getDoc, getDocsFromCache, getDocsFromServer, QuerySnapshot } from "@firebase/firestore";
 import { useEffect, useState } from 'react';
 import { Asset, AssetValue, Wallet } from '../types';
 import { getServerSidePropsWithAuth, ServerProps } from '../util/get-server-side-props-with-auth';
@@ -20,8 +20,8 @@ export const getServerSideProps = getServerSidePropsWithAuth;
 const Charts = (props: ServerProps) => {
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [assets, setAssets] = useState<Asset[]>([]);
-  const [timeValues, setTimeValues] = useState<{timeAssetValues:any[],timeCategoryValues:any[],timeTotalValues:any[]}>(
-    {timeAssetValues:[],timeCategoryValues:[],timeTotalValues:[]}
+  const [timeValues, setTimeValues] = useState<{ timeAssetValues: any[], timeCategoryValues: any[], timeTotalValues: any[] }>(
+    { timeAssetValues: [], timeCategoryValues: [], timeTotalValues: [] }
   );
 
   const getWallets = async () => {
@@ -52,11 +52,11 @@ const Charts = (props: ServerProps) => {
     setTimeValues(tv);
   };
 
-  const checkTimeValuesConsistence = (tv:any[]) => {
+  const checkTimeValuesConsistence = (tv: any[]) => {
     let safe = true;
     let len = tv[0].length;
     tv.forEach(t => {
-      if(t.length !== len){
+      if (t.length !== len) {
         safe = false;
         return;
       }
@@ -84,54 +84,61 @@ const Charts = (props: ServerProps) => {
         where('assetId', '==', assetId),
         where('createdOn', '>=', parseInt(sixMonthAgo.format('X'))),
         orderBy("createdOn"));
-      return getDocs(assetValueQuery).then(querySnapshot => querySnapshot.forEach((snapshot) => {
-        result.push(snapshot);
-      }));
+      return (getDocsFromCache(assetValueQuery)
+        .then(qs => {
+          console.log('from cache',qs.size);
+          if(!qs.size) throw new Error('empty cache');
+          return qs;
+        })
+        .catch(e => getDocsFromServer(assetValueQuery)))
+        .then(querySnapshot => querySnapshot.forEach((snapshot) => {
+          result.push(snapshot);
+        }));
     });
     await Promise.all(resultPromise);
-    const assetValues = result.map(r => ({...r.data(),id:r.id}) as AssetValue);
+    const assetValues = result.map(r => ({ ...r.data(), id: r.id }) as AssetValue);
     const timeAxe = getTimesAxe();
-    const timeAssetValues = assets.reduce((acc:any[],asset:Asset)=>{
+    const timeAssetValues = assets.reduce((acc: any[], asset: Asset) => {
       const alreadyExists = acc.find(a => a[0] === asset.name);
-      return alreadyExists !== undefined ? acc : [...acc,[asset.name]]
-    },[timeAxe]);
+      return alreadyExists !== undefined ? acc : [...acc, [asset.name]]
+    }, [timeAxe]);
 
-    const timeCategoryValues = assets.reduce((acc:any[],asset:Asset)=>{
+    const timeCategoryValues = assets.reduce((acc: any[], asset: Asset) => {
       const alreadyExists = acc.find(a => a[0] === asset.category);
-      return alreadyExists !== undefined ? acc : [...acc,[asset.category]]
-    },[timeAxe]);
+      return alreadyExists !== undefined ? acc : [...acc, [asset.category]]
+    }, [timeAxe]);
 
-    const timeTotalValues = [timeAxe,['total']];
+    const timeTotalValues = [timeAxe, ['total']];
 
-    timeAxe.slice(1).forEach((t,i) => {
-      const singleDateValue = calculateSingleDateValues(t,assets,assetValues);
+    timeAxe.slice(1).forEach((t, i) => {
+      const singleDateValue = calculateSingleDateValues(t, assets, assetValues);
       timeTotalValues[1].push(singleDateValue.get('total').value);
       assets.forEach(asset => {
         let categoryIdx = timeCategoryValues.findIndex(tav => tav[0] === asset.category);
-        if(timeCategoryValues[categoryIdx].length === (i+1)) {
+        if (timeCategoryValues[categoryIdx].length === (i + 1)) {
           timeCategoryValues[categoryIdx].push(singleDateValue.get(asset.id).value);
         } else {
-          timeCategoryValues[categoryIdx][i+1] += singleDateValue.get(asset.id).value;
+          timeCategoryValues[categoryIdx][i + 1] += singleDateValue.get(asset.id).value;
         }
         const idx = timeAssetValues.findIndex(tav => tav[0] === asset.name);
-        if(timeAssetValues[idx].length === (i+1)) {
+        if (timeAssetValues[idx].length === (i + 1)) {
           timeAssetValues[idx].push(singleDateValue.get(asset.id).value);
         } else {
-          timeAssetValues[idx][i+1] += singleDateValue.get(asset.id).value;
+          timeAssetValues[idx][i + 1] += singleDateValue.get(asset.id).value;
         }
       });
     });
 
-    return {timeAssetValues,timeCategoryValues,timeTotalValues};
+    return { timeAssetValues, timeCategoryValues, timeTotalValues };
   }
 
-/**
- * Generate a Map of the downloaded assetValues documents
- *
- * @param {AssetValue[]} assetValues
- * @returns
- */
-const splitIntoSingleAssetValues = (assetValues: AssetValue[]) => {
+  /**
+   * Generate a Map of the downloaded assetValues documents
+   *
+   * @param {AssetValue[]} assetValues
+   * @returns
+   */
+  const splitIntoSingleAssetValues = (assetValues: AssetValue[]) => {
     const avMap = new Map();
     assetValues.forEach(av => {
       avMap.set(av.assetId, [...(avMap.has(av.assetId) ? avMap.get(av.assetId) : []), av]);
@@ -150,7 +157,7 @@ const splitIntoSingleAssetValues = (assetValues: AssetValue[]) => {
   const calculateSingleDateValues = (date: string, assets: Asset[], assetValues: AssetValue[]) => {
     const avMap = splitIntoSingleAssetValues(assetValues);
     const modAssets = assets.map(asset => {
-      const av = avMap.get(asset.id)?.filter((av:AssetValue) => parseInt(''+av.createdOn) < parseInt(moment(date, 'YYYY-MM-DD').format('X'))).pop();
+      const av = avMap.get(asset.id)?.filter((av: AssetValue) => parseInt('' + av.createdOn) < parseInt(moment(date, 'YYYY-MM-DD').format('X'))).pop();
       return {
         ...asset,
         lastQuantity: av?.quantity || 0,
