@@ -2,7 +2,7 @@ import axios from 'axios';
 import { Asset, AssetValue, Wallet } from '../types';
 import { writeBatch, doc, collection, getDoc, DocumentData, getDocsFromCache, getDocsFromServer, orderBy, query, QueryDocumentSnapshot, where, getDocs, updateDoc, setDoc } from 'firebase/firestore';
 import { firestore } from './firebase-client';
-import { getAssetsValues } from './helpers';
+import { formatValue, getAssetsValues } from './helpers';
 import moment from 'moment';
 import AssetValueCache from '../types/asset-value-cache';
 
@@ -67,7 +67,7 @@ export const updateAssetValuesTimes = async (assetValues: AssetValue[]) => {
 
 export const getOrUpdateCachedValues = async (owner:string,assets:Asset[],months:number,forceUpdate=false) => {
     let cachedValues = await getCachedValues(owner);
-    if(!cachedValues || moment(cachedValues.createdOn,'X').isBefore(moment(),'date')) {
+    if(forceUpdate || !cachedValues || moment(cachedValues.createdOn,'X').isBefore(moment(),'day')) {
         cachedValues = {
             owner,
             createdOn: parseInt(moment().format('X')),
@@ -113,10 +113,11 @@ const getCachedValues = async (owner:string) => {
 const getTimesAxe = (months:number) => {
     const past = moment().subtract(months, 'months');
     const ta = ['x'];
-    while (moment().isSameOrAfter(past)) {
+    while (moment().isAfter(past,'day')) {
       ta.push(past.format('YYYY-MM-DD'));
       past.add(7, 'days');
     }
+    ta.push(moment().format('YYYY-MM-DD'));
     return ta;
   }
 
@@ -130,14 +131,7 @@ const getTimesAxe = (months:number) => {
         where('assetId', '==', assetId),
         where('createdOn', '>=', parseInt(sixMonthAgo.format('X'))),
         orderBy("createdOn"));
-      return (getDocsFromCache(assetValueQuery)
-        .then(qs => {
-          console.log('from cache',qs.size);
-          if(!qs.size) throw new Error('empty cache');
-          return qs;
-        })
-        .catch(e => getDocsFromServer(assetValueQuery)))
-        .then(querySnapshot => querySnapshot.forEach((snapshot) => {
+      return getDocsFromServer(assetValueQuery).then(querySnapshot => querySnapshot.forEach((snapshot) => {
           result.push(snapshot);
         }));
     });
@@ -158,19 +152,19 @@ const getTimesAxe = (months:number) => {
 
     timeAxe.slice(1).forEach((t, i) => {
       const singleDateValue = calculateSingleDateValues(t, assets, assetValues);
-      timeTotalValues[1].push(parseFloat(''+singleDateValue.get('total').value));
+      timeTotalValues[1].push(parseFloat(formatValue(singleDateValue.get('total').value)));
       assets.forEach(asset => {
         let categoryIdx = timeCategoryValues.findIndex(tav => tav[0] === asset.category);
         if (timeCategoryValues[categoryIdx].length === (i + 1)) {
-          timeCategoryValues[categoryIdx].push(singleDateValue.get(asset.id).value);
+          timeCategoryValues[categoryIdx].push(parseFloat(formatValue(singleDateValue.get(asset.id).value)));
         } else {
-          timeCategoryValues[categoryIdx][i + 1] += singleDateValue.get(asset.id).value;
+          timeCategoryValues[categoryIdx][i + 1] = parseFloat(formatValue(timeCategoryValues[categoryIdx][i + 1] + singleDateValue.get(asset.id).value));
         }
         const idx = timeAssetValues.findIndex(tav => tav[0] === asset.name);
         if (timeAssetValues[idx].length === (i + 1)) {
-          timeAssetValues[idx].push(singleDateValue.get(asset.id).value);
+          timeAssetValues[idx].push(parseFloat(formatValue(singleDateValue.get(asset.id).value)));
         } else {
-          timeAssetValues[idx][i + 1] += singleDateValue.get(asset.id).value;
+          timeAssetValues[idx][i + 1] = parseFloat(formatValue(timeAssetValues[idx][i + 1] + singleDateValue.get(asset.id).value));
         }
       });
     });
@@ -203,7 +197,7 @@ const getTimesAxe = (months:number) => {
   const calculateSingleDateValues = (date: string, assets: Asset[], assetValues: AssetValue[]) => {
     const avMap = splitIntoSingleAssetValues(assetValues);
     const modAssets = assets.map(asset => {
-      const av = avMap.get(asset.id)?.filter((av: AssetValue) => parseInt('' + av.createdOn) < parseInt(moment(date, 'YYYY-MM-DD').format('X'))).pop();
+      const av = avMap.get(asset.id)?.filter((av: AssetValue) => parseInt('' + av.createdOn) < parseInt(moment(date+' 23:59:59', 'YYYY-MM-DD HH:mm:ss').format('X'))).pop();
       return {
         ...asset,
         lastQuantity: av?.quantity || 0,

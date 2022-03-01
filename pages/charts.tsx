@@ -42,14 +42,18 @@ const Charts = (props: ServerProps) => {
 
     setAssets(a);
     setWallets(w);
-    let tv = await getOrUpdateCachedValues(props.authUserId,a,6);
+    await updateTimeValues(a);
+  };
+
+  const updateTimeValues = async (a:Asset[],forceUpdate=false) => {
+    let tv = await getOrUpdateCachedValues(props.authUserId, a, 6, forceUpdate);
     tv = {
       timeAssetValues: checkTimeValuesConsistence(tv.timeAssetValues) ? tv.timeAssetValues : [],
       timeCategoryValues: checkTimeValuesConsistence(tv.timeCategoryValues) ? tv.timeCategoryValues : [],
       timeTotalValues: checkTimeValuesConsistence(tv.timeTotalValues) ? tv.timeTotalValues : []
     }
     setTimeValues(tv);
-  };
+  }
 
   const checkTimeValuesConsistence = (tv: any[]) => {
     let safe = true;
@@ -77,6 +81,11 @@ const Charts = (props: ServerProps) => {
       </Head>
       <FireDreamContainer>
         <ChartsPanel wallets={wallets} assets={assets} timeValues={timeValues} />
+        <div className="row mt-5 pt-5">
+          <div className="col-12 text-center">
+            <a className="btn btn-lg btn-dark" role="button" onClick={async () => await updateTimeValues(assets,true)}>Force Update</a>
+          </div>
+        </div>
       </FireDreamContainer>
       <footer className={styles.footer}>
         <a
