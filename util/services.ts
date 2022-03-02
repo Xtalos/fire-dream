@@ -67,7 +67,7 @@ export const updateAssetValuesTimes = async (assetValues: AssetValue[]) => {
 
 export const getOrUpdateCachedValues = async (owner:string,assets:Asset[],months:number,forceUpdate=false) => {
     let cachedValues = await getCachedValues(owner);
-    if(forceUpdate || !cachedValues || moment(cachedValues.createdOn,'X').isBefore(moment(),'day')) {
+    if(forceUpdate || !cachedValues) {
         cachedValues = {
             owner,
             createdOn: parseInt(moment().format('X')),
