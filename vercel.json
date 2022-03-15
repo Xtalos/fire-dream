@@ -1,6 +1,6 @@
 {
     "functions": {
-        "api/quote.ts": {
+        "pages/api/quote.ts": {
             "memory": 1024,
             "maxDuration": 5
         }
