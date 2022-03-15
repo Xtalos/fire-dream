@@ -1,5 +1,5 @@
 import React from 'react';
-import { AssetValue,Time } from '../types';
+import { AssetValue } from '../types';
 import moment from 'moment';
 
 type Props = {

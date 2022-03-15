@@ -22,7 +22,7 @@ const AssetList = ({ assets, onSubmit, walletId, updateQuotes, assetsValues }: P
         setAssetValue({
             assetId: asset.id,
             quantity: 0,
-            value: 0,
+            value: asset.lastValue,
             createdOn: parseInt(moment().format('X'))
         })
     }
