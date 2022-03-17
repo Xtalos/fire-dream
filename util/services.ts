@@ -148,11 +148,12 @@ const getTimesAxe = (months:number) => {
       return alreadyExists !== undefined ? acc : [...acc, [asset.category]]
     }, [timeAxe]);
 
-    const timeTotalValues:any[] = [timeAxe, ['total']];
+    const timeTotalValues:any[] = [timeAxe, ['total'], ['invested']];
 
     timeAxe.slice(1).forEach((t, i) => {
       const singleDateValue = calculateSingleDateValues(t, assets, assetValues);
       timeTotalValues[1].push(parseFloat(formatValue(singleDateValue.get('total').value)));
+      timeTotalValues[2].push(parseFloat(formatValue(singleDateValue.get('total').invested)));
       assets.forEach(asset => {
         let categoryIdx = timeCategoryValues.findIndex(tav => tav[0] === asset.category);
         if (timeCategoryValues[categoryIdx].length === (i + 1)) {
@@ -201,6 +202,7 @@ const getTimesAxe = (months:number) => {
       return {
         ...asset,
         lastQuantity: av?.quantity || 0,
+        lastInvested: av?.invested || 0,
         lastValue: av?.value || 0
       }
     });

@@ -80,7 +80,7 @@ const Charts = (props: ServerProps) => {
         <ChartsPanel wallets={wallets} assets={assets} timeValues={timeValues} />
         <div className="row mt-5 pt-5">
           <div className="col-12 text-center">
-            <a className="btn btn-lg btn-dark" role="button" onClick={async () => await updateTimeValues(assets,true)}>Force Update</a>
+            <a className="btn btn-lg btn-dark" role="button" onClick={async () => await updateTimeValues(assets,true)}>Update</a>
           </div>
         </div>
       </FireDreamContainer>
