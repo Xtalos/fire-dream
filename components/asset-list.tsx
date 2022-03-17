@@ -21,8 +21,9 @@ const AssetList = ({ assets, onSubmit, walletId, updateQuotes, assetsValues }: P
     const changeAssetValueHandler = (asset: Asset) => {
         setAssetValue({
             assetId: asset.id,
-            quantity: 0,
+            quantity: asset.lastQuantity,
             value: asset.lastValue,
+            invested: asset.lastInvested,
             createdOn: parseInt(moment().format('X'))
         })
     }
@@ -72,7 +73,7 @@ const AssetList = ({ assets, onSubmit, walletId, updateQuotes, assetsValues }: P
                                         <div className="row">
                                             <div className="col-sm-2 p-2 p-lg-2 text-center d-flex flex-column"><div>{asset.name}</div><small>{asset.platform}</small></div>
                                             <div className="col-sm-1 p-2 p-lg-2 text-center align-self-center">{formatRisk(assetsValues.get(asset.id).globalRisk)}</div>
-                                            <div className="col-sm-2 p-2 p-lg-2 text-center align-self-center">{formatValue(asset.invested)}</div>
+                                            <div className="col-sm-2 p-2 p-lg-2 text-center align-self-center">{formatValue(asset.lastInvested)}</div>
                                             <div className="col-sm-2 p-2 p-lg-2 text-center align-self-center">{formatValue(assetsValues.get(asset.id).value)}</div>
                                             <div className="col-sm-1 p-2 p-lg-2 text-center align-self-center">{formatRatio(assetsValues.get(asset.id).ratio)}</div>
                                             <div className="col-sm-1 p-2 p-lg-2 text-center align-self-center">{formatRatio(asset.targetRatio)}</div>

@@ -48,6 +48,7 @@ export default async function handler(
         af && values.push({
           value: element.regularMarketPrice,
           assetId: af.id,
+          invested: af.lastInvested,
           quantity: af.lastQuantity,
           createdOn
         });

@@ -6,6 +6,7 @@ type AssetValue = {
     assetId: string
     quantity: number
     value: number
+    invested: number
     createdOn: number
 }
 

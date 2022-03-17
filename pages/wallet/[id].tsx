@@ -62,7 +62,8 @@ const WalletPage = (props: ServerProps) => {
     const assetRef = doc(firestore, 'assets/' + av.assetId);
     await updateDoc(assetRef, {
       lastQuantity: av.quantity,
-      lastValue: av.value
+      lastValue: av.value,
+      lastInvested: av.invested
     });
     router.reload();
   }

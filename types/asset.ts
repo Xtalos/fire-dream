@@ -18,6 +18,7 @@ type Asset = {
     updatedOn: Time
     lastQuantity: number
     lastValue: number
+    lastInvested: number
 }
 
 export default Asset;

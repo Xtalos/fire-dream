@@ -2,14 +2,11 @@ import Head from 'next/head';
 import { FireDreamContainer } from '../components';
 import styles from '../styles/Home.module.css'
 import { firestore } from '../util/firebase-client';
-import { collection, QueryDocumentSnapshot, DocumentData, query, where, getDocs, getDoc, getDocsFromCache, getDocsFromServer, QuerySnapshot } from "@firebase/firestore";
+import { collection, QueryDocumentSnapshot, DocumentData, query, where, getDocs, getDoc } from "@firebase/firestore";
 import { useEffect, useState } from 'react';
-import { Asset, AssetValue, Wallet } from '../types';
+import { Asset, Wallet } from '../types';
 import { getServerSidePropsWithAuth, ServerProps } from '../util/get-server-side-props-with-auth';
 import ChartsPanel from '../components/charts-panel';
-import moment from 'moment';
-import { orderBy } from 'firebase/firestore';
-import { getAssetsValues } from '../util/helpers';
 import { getOrUpdateCachedValues } from '../util/services';
 
 const walletsCollection = collection(firestore, 'wallets');

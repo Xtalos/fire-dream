@@ -35,15 +35,19 @@ const AssetValueForm = ({ assetValue,onSubmit }: Props) => {
                 <form onSubmit={handleSubmit}>
                     <input type="hidden" required onChange={handleChange} id="assetId" defaultValue={assetValue?.assetId}/>
                     <div className="mb-3">
-                        <label htmlFor="name" className="form-label">Quantity</label>
+                        <label htmlFor="invested" className="form-label">Invested (€)</label>
+                        <input type="text" className="form-control" onChange={handleChange} id="invested" defaultValue={assetValue?.invested}/>
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="quantity" className="form-label">Quantity</label>
                         <input type="text" className="form-control" onChange={handleChange} id="quantity" defaultValue={assetValue?.quantity}/>
                     </div>
                     <div className="mb-3">
-                        <label htmlFor="category" className="form-label">Value</label>
+                        <label htmlFor="value" className="form-label">Value</label>
                         <input type="text" className="form-control" onChange={handleChange} id="value" defaultValue={assetValue?.value}/>
                     </div>
                     <div className="mb-3">
-                        <label htmlFor="symbol" className="form-label">Date</label>
+                        <label htmlFor="date" className="form-label">Date</label>
                         <input type="text" className="form-control" onChange={handleChangeDate} id="createdOn" defaultValue={formatDate(assetValue?.createdOn)}/>
                     </div>
                     <div className="mb-3 text-center">
