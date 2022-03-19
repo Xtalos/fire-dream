@@ -5,7 +5,8 @@ import React, { useState } from 'react';
 import { Alert, Modal } from 'react-bootstrap';
 import { Asset, AssetValue } from '../types';
 import AssetValueForm from './asset-value-form';
-import { formatRatio, formatRisk, formatValue } from '../util/helpers';
+import { formatRatio, formatRisk, formatValue, toPieData } from '../util/helpers';
+import Pie from './charts/pie';
 
 type Props = {
     assets: Asset[]
@@ -131,6 +132,11 @@ const AssetList = ({ assets, onSubmit, walletId, updateQuotes, assetsValues }: P
                                     <AssetValueForm assetValue={assetValue} onSubmit={handleSubmit} />
                                 </Modal.Body>
                             </Modal>}
+                    </div>
+                </div>
+                <div className="row mb-5">
+                    <div className="col-12">
+                        <Pie data={toPieData(assets, 'name')} graphId='assetsComposition' title='Assets Composition'/>
                     </div>
                 </div>
             </div>

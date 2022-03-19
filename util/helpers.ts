@@ -1,3 +1,4 @@
+import { BasicData } from "../components/charts/pie";
 import { Asset } from "../types";
 
 export const formatValue = (value: string | number, unit = 'EUR') => {
@@ -73,4 +74,16 @@ export const getAssetsValues = (assets: Asset[]) => {
     });
 
     return assetsValues;
+}
+
+export const toPieData = (assets: Asset[], field: 'category' | 'name'): BasicData[] => {
+    const assetsValues = getAssetsValues(assets);
+    return assets.reduce((acc: BasicData[], asset: Asset) => {
+        const existingDataIdx = acc.findIndex(data => data.name === asset[field]);
+        const existingData = existingDataIdx >= 0 ? acc.splice(existingDataIdx,1)[0] : null;
+        return [...acc, {
+            name: asset[field],
+            value: assetsValues.get(asset.id).value + (existingData? existingData.value : 0)
+        }]
+    },[]).filter(data => data.value > 0).sort((a,b) => b.value - a.value);
 }
