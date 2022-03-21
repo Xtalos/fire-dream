@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { updateDoc, addDoc, getDoc, collection, doc } from "@firebase/firestore";
 import { firestore } from "../../util/firebase-client";
 import { FireDreamContainer, AssetList } from "../../components";
-import { Asset, AssetValue, Wallet } from '../../types';
+import { Asset, AssetValue, Config, Wallet } from '../../types';
 import Head from "next/head";
 import { getServerSidePropsWithAuth, ServerProps } from "../../util/get-server-side-props-with-auth";
 import WalletForm from "../../components/wallet-form";
@@ -16,8 +16,10 @@ const WalletPage = (props: ServerProps) => {
   const router = useRouter();
   const { id, edit } = router.query;
   const walletRef = doc(firestore, 'wallets/' + id);
+  const configRef = doc(firestore, 'config/' + props.authUserId);
   const [wallet, setWallet] = useState<Wallet | undefined>();
   const [assets, setAssets] = useState<Asset[]>([]);
+  const [config, setConfig] = useState<Config>();
   let assetsValues = getAssetsValues(assets);
 
   const getWallet = async () => {
@@ -38,6 +40,12 @@ const WalletPage = (props: ServerProps) => {
     }
     setAssets(asts);
     setWallet(w);
+  };
+
+  const getConfig = async () => {
+    const result = await getDoc(configRef);
+    const c = result.data() as Config;
+    setConfig(c);
   };
 
   const saveWallet = async (value: Wallet) => {
@@ -69,7 +77,7 @@ const WalletPage = (props: ServerProps) => {
   }
 
   const updateAssetsQuotes = async (assets: Asset[]) => {
-    const assetsUpdated = await updateQuotes(assets);
+    const assetsUpdated = await updateQuotes(assets,config);
     assetsValues = getAssetsValues(assetsUpdated);
     if (wallet) await saveWallet(wallet);
     setAssets(assetsUpdated);
@@ -80,8 +88,9 @@ const WalletPage = (props: ServerProps) => {
       case undefined: return void 0;
       case 'new':
         break;
-      default:
+      default: 
         getWallet();
+        getConfig();
     }
   }, [id]);
 

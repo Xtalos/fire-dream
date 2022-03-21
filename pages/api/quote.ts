@@ -1,7 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
-import { Asset, AssetValue } from '../../types';
+import { Asset, AssetValue, Config } from '../../types';
 import moment from 'moment';
 
 type ApiResponseValue = {
@@ -27,13 +27,13 @@ export default async function handler(
   res: NextApiResponse<Data>
 ) {
   const values:AssetValue[] = [];
-  const { assets } = req.body as { assets: Asset[] };
+  const { assets, config } = req.body as { assets: Asset[], config: Config };
   const symbols = assets.filter(asset => asset.symbol && asset.symbol !== 'EUR').map(asset => asset.symbol);
   const chunks = splitIntoChunks(symbols,10);
   const createdOn = parseInt(moment().format('X'));
 
   const apiUrl = process.env.YAHOO_FINANCE_APIURL;
-  const xApiKey = process.env.YAHOO_FINANCE_XAPIKEY;
+  const xApiKey = config?.yahooFinanceApiKey;
 
   const chunkPromises = chunks.map(chunk => {
     const search = chunk.length > 1 ? chunk.join(',') : chunk[0];

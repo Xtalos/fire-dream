@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Asset, AssetValue, Wallet } from '../types';
+import { Asset, AssetValue, Config, Wallet } from '../types';
 import { writeBatch, doc, collection, getDoc, DocumentData, getDocsFromServer, orderBy, query, QueryDocumentSnapshot, where, setDoc } from 'firebase/firestore';
 import { firestore } from './firebase-client';
 import { formatValue, getAssetsValues } from './helpers';
@@ -7,9 +7,9 @@ import moment from 'moment';
 import AssetValueCache from '../types/asset-value-cache';
 
 
-export const updateQuotes = async (assets: Asset[]) => {
+export const updateQuotes = async (assets: Asset[], config?:Config) => {
     const batch = writeBatch(firestore);
-    const response = await axios.post('/api/quote', { assets });
+    const response = await axios.post('/api/quote', { assets, config });
     const assetValuesCollection = collection(firestore, 'assetsValues');
 
     const quotes = response.status === 200 ? response.data.values as AssetValue[] : [];
