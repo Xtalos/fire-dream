@@ -4,11 +4,12 @@ import styles from '../styles/Home.module.css'
 import { firestore } from '../util/firebase-client';
 import { collection, QueryDocumentSnapshot, DocumentData, query, where, getDocs } from "@firebase/firestore";
 import { useEffect, useState } from 'react';
-import { Wallet } from '../types';
+import { Config, Wallet } from '../types';
 import { getServerSidePropsWithAuth, ServerProps } from '../util/get-server-side-props-with-auth';
 import WalletList from '../components/wallet-list';
 import { updateWalletsQuotes } from '../util/services';
 import { useRouter } from 'next/router';
+import { doc, getDoc } from 'firebase/firestore';
 
 const walletsCollection = collection(firestore, 'wallets');
 
@@ -16,7 +17,9 @@ export const getServerSideProps = getServerSidePropsWithAuth;
 
 const Home = (props: ServerProps) => {
   const router = useRouter();
+  const configRef = doc(firestore, 'config/' + props.authUserId);
   const [wallets, setWallets] = useState<Wallet[]>([]);
+  const [config, setConfig] = useState<Config>();
 
   const getWallets = async () => {
     const walletsQuery = query(walletsCollection, where('owner', '==', props.authUserId));
@@ -30,9 +33,16 @@ const Home = (props: ServerProps) => {
     setWallets(w);
   };
 
+  const getConfig = async () => {
+    const result = await getDoc(configRef);
+    const c = result.data() as Config;
+    setConfig(c);
+  };
+
   useEffect(() => {
     // get the todos
     getWallets();
+    getConfig();
     // reset loading
     // setTimeout(() => {
     //   setLoading(false);
@@ -40,7 +50,7 @@ const Home = (props: ServerProps) => {
   }, []);
 
   const updateQuotes = async (wallts: Wallet[]) => {
-    const updatedWallets = await updateWalletsQuotes(wallts);
+    const updatedWallets = await updateWalletsQuotes(wallts,config);
     setWallets(updatedWallets);
   }
 
