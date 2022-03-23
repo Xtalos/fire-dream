@@ -52,7 +52,8 @@ export const getAssetsValues = (assets: Asset[]) => {
         totalInvested += parseFloat('' + (asset.lastInvested || 0));
         totalRatio += parseFloat('' + (asset.targetRatio || 0));
         assetsValues.set(asset.id, {
-            value
+            value,
+            targetRatio: asset.targetRatio
         });
     });
     assets.forEach(asset => {
@@ -61,13 +62,14 @@ export const getAssetsValues = (assets: Asset[]) => {
         globalRisk += risk * (info.value || 0) / totalValue;
         assetsValues.set(asset.id, {
             value: info.value,
+            targetRatio: info.targetRatio,
             ratio: info.value / totalValue,
             globalRisk: risk
         });
     });
     assetsValues.set('total', {
         value: totalValue,
-        totalTargetRatio: totalRatio,
+        targetRatio: totalRatio,
         globalRisk: globalRisk,
         ratio: 1,
         invested: totalInvested
@@ -76,14 +78,14 @@ export const getAssetsValues = (assets: Asset[]) => {
     return assetsValues;
 }
 
-export const toPieData = (assets: Asset[], field: 'category' | 'name'): BasicData[] => {
+export const toPieData = (assets: Asset[], field: 'category' | 'name', valueField = 'value'): BasicData[] => {
     const assetsValues = getAssetsValues(assets);
     return assets.reduce((acc: BasicData[], asset: Asset) => {
         const existingDataIdx = acc.findIndex(data => data.name === asset[field]);
         const existingData = existingDataIdx >= 0 ? acc.splice(existingDataIdx,1)[0] : null;
         return [...acc, {
             name: asset[field],
-            value: assetsValues.get(asset.id).value + (existingData? existingData.value : 0)
+            value: assetsValues.get(asset.id)[valueField] + (existingData? existingData.value : 0)
         }]
     },[]).filter(data => data.value > 0).sort((a,b) => b.value - a.value);
 }

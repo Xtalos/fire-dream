@@ -18,6 +18,7 @@ type Props = {
 
 const AssetList = ({ assets, onSubmit, walletId, updateQuotes, assetsValues }: Props) => {
     const [assetValue, setAssetValue] = useState<AssetValue | null>(null);
+    const [assetTarget, setAssetTarget] = useState<Asset | null>(null);
 
     const changeAssetValueHandler = (asset: Asset) => {
         setAssetValue({
@@ -49,9 +50,9 @@ const AssetList = ({ assets, onSubmit, walletId, updateQuotes, assetsValues }: P
                         </Link>
                     </div>
                 </div>
-                {assetsValues.get('total').totalTargetRatio != 1 &&
+                {assetsValues.get('total').targetRatio != 1 &&
                     <Alert variant='danger'>
-                        Total Target Ratio is {formatRatio(assetsValues.get('total').totalTargetRatio)}
+                        Total Target Ratio is {formatRatio(assetsValues.get('total').targetRatio)}
                     </Alert>
                 }
                 <div className="row">
@@ -77,7 +78,7 @@ const AssetList = ({ assets, onSubmit, walletId, updateQuotes, assetsValues }: P
                                             <div className="col-sm-2 p-2 p-lg-2 text-center align-self-center">{formatValue(asset.lastInvested)}</div>
                                             <div className="col-sm-2 p-2 p-lg-2 text-center align-self-center">{formatValue(assetsValues.get(asset.id).value)}</div>
                                             <div className="col-sm-1 p-2 p-lg-2 text-center align-self-center">{formatRatio(assetsValues.get(asset.id).ratio)}</div>
-                                            <div className="col-sm-1 p-2 p-lg-2 text-center align-self-center">{formatRatio(asset.targetRatio)}</div>
+                                            <div onClick={() => setAssetTarget(asset)} role="button" className="col-sm-1 p-2 p-lg-2 text-center align-self-center">{formatRatio(asset.targetRatio)}</div>
                                             <div className="col-sm-3 align-self-center">
                                                 <div className="row">
                                                     <div className="col text-center">
@@ -132,10 +133,33 @@ const AssetList = ({ assets, onSubmit, walletId, updateQuotes, assetsValues }: P
                                     <AssetValueForm assetValue={assetValue} onSubmit={handleSubmit} />
                                 </Modal.Body>
                             </Modal>}
+                        {assetTarget &&
+                            <Modal show={true} onHide={() => setAssetTarget(null)}>
+                                <Modal.Header closeButton>
+                                    <Modal.Title>Asset Target</Modal.Title>
+                                </Modal.Header>
+                                <Modal.Body>
+                                    <div className="mt-2 text-center">
+                                        <h6>{assetTarget.name}</h6>
+                                    </div>
+                                    <div className="mt-2 text-center">
+                                        &#916; value  =  {formatValue(assetsValues.get(assetTarget.id).value - assetsValues.get('total').value * assetTarget.targetRatio)}
+                                    </div>
+                                    <div className="mt-2 text-center">
+                                        &#916; quotes  =  {assetTarget.lastQuantity - assetTarget.lastQuantity*assetTarget.targetRatio/assetsValues.get(assetTarget.id).ratio}
+                                    </div>
+                                    <div className="mt-4 text-center">
+                                        <button onClick={() => setAssetTarget(null)}>OK</button>
+                                    </div>
+                                </Modal.Body>
+                            </Modal>}
                     </div>
                 </div>
                 <div className="row mb-5">
-                    <div className="col-12">
+                    <div className="col-md-6">
+                        <Pie data={toPieData(assets, 'name', 'targetRatio')} graphId='targetComposition' title='Target Composition'/>
+                    </div>
+                    <div className="mt-5 mt-md-0 col-md-6">
                         <Pie data={toPieData(assets, 'name')} graphId='assetsComposition' title='Assets Composition'/>
                     </div>
                 </div>
