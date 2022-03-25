@@ -25,8 +25,8 @@ const AssetValueForm = ({ assetValue,onSubmit }: Props) => {
 
     const handleChangeDate = (event:React.ChangeEvent<HTMLInputElement>) => {
         const id = event.target.id;
-        const value = moment(event.target.value).format('X');
-        newAssetValue = {...newAssetValue, [id]: { seconds:value }};
+        const value = parseInt(moment().format('X'));
+        newAssetValue = {...newAssetValue, [id]: value };
       }
 
     return (

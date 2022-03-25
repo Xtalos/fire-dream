@@ -9,6 +9,7 @@ import { getServerSidePropsWithAuth, ServerProps } from "../../util/get-server-s
 import WalletForm from "../../components/wallet-form";
 import { updateQuotes } from '../../util/services';
 import { getAssetsValues } from '../../util/helpers';
+import Swal from 'sweetalert2';
 
 export const getServerSideProps = getServerSidePropsWithAuth;
 
@@ -63,6 +64,11 @@ const WalletPage = (props: ServerProps) => {
       const result = await updateDoc(walletRef, walletUpdated);
       router.replace('/');
     }
+    Swal.fire(
+      'Good job!',
+      'Wallet saved successfully!',
+      'success'
+    );
   }
 
   const addValue = async (av: AssetValue) => {
@@ -74,6 +80,11 @@ const WalletPage = (props: ServerProps) => {
       lastInvested: av.invested
     });
     router.reload();
+    Swal.fire(
+      'Good job!',
+      'Value saved successfully!',
+      'success'
+    );
   }
 
   const updateAssetsQuotes = async (assets: Asset[]) => {
@@ -81,6 +92,11 @@ const WalletPage = (props: ServerProps) => {
     assetsValues = getAssetsValues(assetsUpdated);
     if (wallet) await saveWallet(wallet);
     setAssets(assetsUpdated);
+    Swal.fire(
+      'Good job!',
+      'Assets quotes updated successfully!',
+      'success'
+    );
   }
 
   useEffect(() => {

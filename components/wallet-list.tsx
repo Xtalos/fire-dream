@@ -3,7 +3,7 @@ import Link from 'next/link';
 import React from 'react';
 import { Alert } from 'react-bootstrap';
 import { Wallet } from '../types';
-import { formatRatio, formatRisk, formatValue } from '../util/helpers';
+import { formatRatio, formatRisk, formatValue, isWalletRevisionExpired } from '../util/helpers';
 
 type Props = {
     wallets: Wallet[]
@@ -59,7 +59,7 @@ const WalletList = ({ wallets, updateQuotes }: Props) => {
                             </li>
                             {wallets.length && wallets.map(wallet => {
                                 return (
-                                    <li className="list-group-item" key={wallet.id}>
+                                    <li className={isWalletRevisionExpired(wallet) ? 'bg-warning list-group-item' : 'list-group-item'} key={wallet.id}>
                                         <div className="row">
                                             <div className="col-sm-2 p-2 p-lg-2 text-center">{wallet.label}</div>
                                             <div className="col-sm-2 p-2 p-lg-2 text-center">{formatValue(wallet.invested)}</div>

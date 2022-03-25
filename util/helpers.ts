@@ -1,5 +1,6 @@
+import moment from "moment";
 import { BasicData } from "../components/charts/pie";
-import { Asset } from "../types";
+import { Asset, Wallet } from "../types";
 
 export const formatValue = (value: string | number, unit = 'EUR') => {
     if (typeof value === 'string') {
@@ -88,4 +89,11 @@ export const toPieData = (assets: Asset[], field: 'category' | 'name', valueFiel
             value: assetsValues.get(asset.id)[valueField] + (existingData? existingData.value : 0)
         }]
     },[]).filter(data => data.value > 0).sort((a,b) => b.value - a.value);
+}
+
+export const formatDate = (date?:number,format='YYYY-MM-DD') => date && moment.unix(date).format(format);
+
+export const isWalletRevisionExpired = (wallet:Wallet) => {
+    console.log(moment().diff(moment(wallet.revisedOn,'X'),'days'));
+    return wallet.revisedOn === undefined || moment().diff(moment(wallet.revisedOn,'X'),'days') > (parseInt(wallet.revisionFrequency+'') ?? 0);
 }

@@ -8,6 +8,8 @@ import { Config } from '../types';
 import { getServerSidePropsWithAuth, ServerProps } from '../util/get-server-side-props-with-auth';
 import { doc } from 'firebase/firestore';
 import ConfigForm from '../components/config-form';
+import Swal from 'sweetalert2';
+
 
 export const getServerSideProps = getServerSidePropsWithAuth;
 
@@ -33,6 +35,11 @@ const Config = (props: ServerProps) => {
 
   const saveConfig = async (configUpdated: Config) => {
     const result = await setDoc(configRef, configUpdated);
+    Swal.fire(
+      'Good job!',
+      'Config updated successfully!',
+      'success'
+    );
   }
 
   return (

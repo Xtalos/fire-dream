@@ -10,6 +10,8 @@ import WalletList from '../components/wallet-list';
 import { updateWalletsQuotes } from '../util/services';
 import { useRouter } from 'next/router';
 import { doc, getDoc } from 'firebase/firestore';
+import Swal from 'sweetalert2';
+
 
 const walletsCollection = collection(firestore, 'wallets');
 
@@ -52,6 +54,11 @@ const Home = (props: ServerProps) => {
   const updateQuotes = async (wallts: Wallet[]) => {
     const updatedWallets = await updateWalletsQuotes(wallts,config);
     setWallets(updatedWallets);
+    Swal.fire(
+      'Good job!',
+      'Assets quotes updated successfully!',
+      'success'
+    );
   }
 
   return (

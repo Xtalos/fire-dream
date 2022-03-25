@@ -149,7 +149,7 @@ const AssetList = ({ assets, onSubmit, walletId, updateQuotes, assetsValues }: P
                                         &#916; quotes  =  {assetTarget.lastQuantity - assetTarget.lastQuantity*assetTarget.targetRatio/assetsValues.get(assetTarget.id).ratio}
                                     </div>
                                     <div className="mt-4 text-center">
-                                        <button onClick={() => setAssetTarget(null)}>OK</button>
+                                        <button className="btn btn-lg btn-dark" onClick={() => setAssetTarget(null)}>OK</button>
                                     </div>
                                 </Modal.Body>
                             </Modal>}

@@ -8,6 +8,7 @@ import { Asset, Wallet } from '../types';
 import { getServerSidePropsWithAuth, ServerProps } from '../util/get-server-side-props-with-auth';
 import ChartsPanel from '../components/charts-panel';
 import { getOrUpdateCachedValues } from '../util/services';
+import Swal from 'sweetalert2';
 
 const walletsCollection = collection(firestore, 'wallets');
 
@@ -50,6 +51,11 @@ const Charts = (props: ServerProps) => {
       timeTotalValues: checkTimeValuesConsistence(tv.timeTotalValues) ? tv.timeTotalValues : []
     }
     setTimeValues(tv);
+    if(forceUpdate) Swal.fire(
+      'Good job!',
+      'Time values updated successfully!',
+      'success'
+    );
   }
 
   const checkTimeValuesConsistence = (tv: any[]) => {

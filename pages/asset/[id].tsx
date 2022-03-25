@@ -6,6 +6,8 @@ import { FireDreamContainer, AssetForm } from "../../components";
 import { Asset, Wallet } from '../../types';
 import Head from "next/head";
 import { getServerSidePropsWithAuth, ServerProps } from "../../util/get-server-side-props-with-auth";
+import Swal from 'sweetalert2';
+
 
 export const getServerSideProps = getServerSidePropsWithAuth;
 
@@ -38,6 +40,11 @@ const AssetPage = (props: ServerProps) => {
       await updateDoc(assetRef, value);
       router.replace('/wallet/' + wallet);
     }
+    Swal.fire(
+      'Good job!',
+      'Asset saved successfully!',
+      'success'
+    );
   }
 
   useEffect(() => {
