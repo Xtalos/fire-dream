@@ -81,7 +81,6 @@ export const getAssetsValues = (assets: Asset[]) => {
 
 export const toPieData = (assets: Asset[], field: 'category' | 'name', valueField = 'value'): BasicData[] => {
     const assetsValues = getAssetsValues(assets);
-    console.log(assetsValues);
     return assets.reduce((acc: BasicData[], asset: Asset) => {
         const existingDataIdx = acc.findIndex(data => data.name === asset[field]);
         const existingData = existingDataIdx >= 0 ? acc.splice(existingDataIdx,1)[0] : null;
@@ -89,17 +88,11 @@ export const toPieData = (assets: Asset[], field: 'category' | 'name', valueFiel
             name: asset[field],
             value: assetsValues.get(asset.id)[valueField] + (existingData? existingData.value : 0)
         }]
-    },[])
-    .map(data => {
-        console.log(data);
-        return data;
-    })
-    .filter(data => data.value > 0).sort((a,b) => b.value - a.value);
+    },[]).filter(data => data.value > 0).sort((a,b) => b.value - a.value);
 }
 
 export const formatDate = (date?:number,format='YYYY-MM-DD') => date && moment.unix(date).format(format);
 
 export const isWalletRevisionExpired = (wallet:Wallet) => {
-    console.log(moment().diff(moment(wallet.revisedOn,'X'),'days'));
     return wallet.revisedOn === undefined || moment().diff(moment(wallet.revisedOn,'X'),'days') > (parseInt(wallet.revisionFrequency+'') ?? 0);
 }
