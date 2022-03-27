@@ -12,37 +12,36 @@ type Props = {
 }
 
 const ChartsPanel = ({ wallets, assets, timeValues }: Props) => {
-
     return (
         <div className="row">
-            {timeValues.timeTotalValues.length ? <div className="col-lg-10 offset-lg-1">
+            {timeValues.timeTotalValues.length ?
                 <div className="row mt-5">
-                    <div className="col-12">
-                        <TimeSeriesChart data={timeValues.timeTotalValues} graphId='timeTotalValues' title='Total Value'/>
+                    <div className="col-lg-10 offset-lg-1">
+                        <TimeSeriesChart data={timeValues.timeTotalValues} graphId='timeTotalValues' title='Total Value' />
                     </div>
-                </div>
-            </div> : <></>}
-            <div className="col-lg-10 offset-lg-1">
-                <div className="row mt-5">
-                    <div className="col-12">
-                        <Pie data={toPieData(assets, 'name')} graphId='assetsComposition' title='Assets Composition'/>
-                    </div>
+                </div> : <></>}
+            <div className="row mt-5">
+                <div className="col-lg-10 offset-lg-1">
+                    <Pie data={toPieData(assets, 'category')} graphId='categoryComposition' title='Category Composition' />
                 </div>
             </div>
-            {timeValues.timeCategoryValues.length ? <div className="col-lg-10 offset-lg-1">
-                <div className="row mt-5">
-                    <div className="col-12">
-                        <TimeSeriesChart data={timeValues.timeCategoryValues} graphId='timeCategoryValues' title='Categories Values'/>
-                    </div>
+            <div className="row mt-5">
+                <div className="col-lg-10 offset-lg-1">
+                    <Pie data={toPieData(assets, 'name')} graphId='assetsComposition' title='Assets Composition' />
                 </div>
-            </div> : <></>}
-            {timeValues.timeAssetValues.length ? <div className="col-lg-10 offset-lg-1">
+            </div>
+            {timeValues.timeCategoryValues.length ?
                 <div className="row mt-5">
-                    <div className="col-12">
-                        <TimeSeriesChart data={timeValues.timeAssetValues} graphId='timeAssetValues' title='Assets Values'/>
+                    <div className="col-lg-10 offset-lg-1">
+                        <TimeSeriesChart data={timeValues.timeCategoryValues} graphId='timeCategoryValues' title='Categories Values' />
                     </div>
-                </div>
-            </div> : <></>}
+                </div> : <></>}
+            {timeValues.timeAssetValues.length ?
+                <div className="row mt-5">
+                    <div className="col-lg-10 offset-lg-1">
+                        <TimeSeriesChart data={timeValues.timeAssetValues} graphId='timeAssetValues' title='Assets Values' />
+                    </div>
+                </div> : <></>}
         </div>
     );
 }
