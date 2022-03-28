@@ -37,7 +37,7 @@ export const formatRisk = (value: string | number) => {
     return Math.round(value * 10) / 10;
 }
 
-export const getAssetsValues = (assets: Asset[]) => {
+export const getCalculatedValues = (assets: Asset[]) => {
     let totalValue = 0;
     let totalInvested = 0;
     let totalRatio = 0;
@@ -80,7 +80,7 @@ export const getAssetsValues = (assets: Asset[]) => {
 }
 
 export const toPieData = (assets: Asset[], field: 'category' | 'name', valueField = 'value'): BasicData[] => {
-    const assetsValues = getAssetsValues(assets);
+    const assetsValues = getCalculatedValues(assets);
     return assets.reduce((acc: BasicData[], asset: Asset) => {
         const existingDataIdx = acc.findIndex(data => data.name === asset[field]);
         const existingData = existingDataIdx >= 0 ? acc.splice(existingDataIdx,1)[0] : null;

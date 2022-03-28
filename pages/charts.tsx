@@ -9,6 +9,7 @@ import { getServerSidePropsWithAuth, ServerProps } from '../util/get-server-side
 import ChartsPanel from '../components/charts-panel';
 import { getOrUpdateCachedValues } from '../util/services';
 import Swal from 'sweetalert2';
+import { Form } from 'react-bootstrap';
 
 const walletsCollection = collection(firestore, 'wallets');
 
@@ -16,7 +17,9 @@ export const getServerSideProps = getServerSidePropsWithAuth;
 
 const Charts = (props: ServerProps) => {
   const [wallets, setWallets] = useState<Wallet[]>([]);
+  const [selectedWallets, setSelectedWallets] = useState<Wallet[]>([]);
   const [assets, setAssets] = useState<Asset[]>([]);
+  const [selectedAssets, setSelectedAssets] = useState<Asset[]>([]);
   const [timeValues, setTimeValues] = useState<{ timeAssetValues: any[], timeCategoryValues: any[], timeTotalValues: any[] }>(
     { timeAssetValues: [], timeCategoryValues: [], timeTotalValues: [] }
   );
@@ -40,10 +43,11 @@ const Charts = (props: ServerProps) => {
 
     setAssets(a);
     setWallets(w);
-    await updateTimeValues(a);
+    await filterWallets(w,a);
   };
 
-  const updateTimeValues = async (a:Asset[],forceUpdate=false) => {
+  const updateTimeValues = async (a: Asset[], forceUpdate = false) => {
+    if(forceUpdate) (document.getElementById('filterWallet') as HTMLSelectElement).value = 'all';
     let tv = await getOrUpdateCachedValues(props.authUserId, a, 6, forceUpdate);
     tv = {
       timeAssetValues: checkTimeValuesConsistence(tv.timeAssetValues) ? tv.timeAssetValues : [],
@@ -51,7 +55,7 @@ const Charts = (props: ServerProps) => {
       timeTotalValues: checkTimeValuesConsistence(tv.timeTotalValues) ? tv.timeTotalValues : []
     }
     setTimeValues(tv);
-    if(forceUpdate) Swal.fire(
+    if (forceUpdate) Swal.fire(
       'Good job!',
       'Time values updated successfully!',
       'success'
@@ -71,6 +75,33 @@ const Charts = (props: ServerProps) => {
     return safe;
   }
 
+  const filterAssets = (ws: Wallet[],as: Asset[]) => {
+    let newAssets:Asset[] = [];
+    ws.forEach(w => {
+      newAssets = newAssets.concat(as.filter(a => undefined !== Object.values(w.assets).find(wa => wa.id == a.id)));
+    })
+
+    return newAssets;
+  }
+
+  const filterWallets = async (ws:Wallet[],as: Asset[]) => {
+    setSelectedWallets(ws);
+    const filteredAssets = filterAssets(ws,as);
+    setSelectedAssets(filteredAssets);
+    await updateTimeValues(filteredAssets);
+  }
+
+  const filterWalletsHandler = async (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const id = event.target.value;
+    console.log(id);
+    if (id === 'all') {
+      await filterWallets(wallets,assets);
+    } else {
+      await filterWallets(wallets.filter(wallet => wallet.id == id),assets);
+    }
+
+  }
+
   useEffect(() => {
     getWallets();
   }, []);
@@ -83,10 +114,18 @@ const Charts = (props: ServerProps) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <FireDreamContainer>
-        <ChartsPanel wallets={wallets} assets={assets} timeValues={timeValues} />
-        <div className="row mt-5 pt-5">
+        <div className="row mt-4">
+          <div className="col-lg-10 offset-lg-1 text-center">
+            <Form.Select aria-label="Filter wallet" id="filterWallet" onChange={filterWalletsHandler}>
+              <option value="all">all</option>
+              {wallets.map(wallet => <option key={wallet.id} value={wallet.id}>{wallet.label}</option>)}
+            </Form.Select>
+          </div>
+        </div>
+        <ChartsPanel wallets={selectedWallets} assets={selectedAssets} timeValues={timeValues} />
+        <div className="row mt-5 mb-5 pt-5 pb-5">
           <div className="col-12 text-center">
-            <a className="btn btn-lg btn-dark" role="button" onClick={async () => await updateTimeValues(assets,true)}>Update</a>
+            <a className="btn btn-lg btn-dark" role="button" onClick={async () => await updateTimeValues(assets, true)}>Update</a>
           </div>
         </div>
       </FireDreamContainer>

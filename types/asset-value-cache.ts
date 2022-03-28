@@ -1,9 +1,10 @@
+import { AssetValue } from ".";
 
 type AssetValueCache = {
     id?:string
     createdOn: number
     owner: string
-    cache: { timeAssetValues: any, timeCategoryValues: any, timeTotalValues: any }
+    cache: AssetValue[]
 }
 
 export default AssetValueCache;

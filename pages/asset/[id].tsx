@@ -18,7 +18,6 @@ const AssetPage = (props: ServerProps) => {
   const assetRef = doc(firestore, 'assets/' + id);
   const walletRef = doc(firestore, 'wallets/' + wallet);
   const [asset, setAsset] = useState<DocumentSnapshot<DocumentData> | null>(null);
-  console.log('wallet', wallet);
 
   const getAsset = async () => {
     const result = await getDoc(assetRef);

@@ -8,7 +8,7 @@ import Head from "next/head";
 import { getServerSidePropsWithAuth, ServerProps } from "../../util/get-server-side-props-with-auth";
 import WalletForm from "../../components/wallet-form";
 import { updateQuotes } from '../../util/services';
-import { getAssetsValues } from '../../util/helpers';
+import { getCalculatedValues } from '../../util/helpers';
 import Swal from 'sweetalert2';
 
 export const getServerSideProps = getServerSidePropsWithAuth;
@@ -21,7 +21,7 @@ const WalletPage = (props: ServerProps) => {
   const [wallet, setWallet] = useState<Wallet | undefined>();
   const [assets, setAssets] = useState<Asset[]>([]);
   const [config, setConfig] = useState<Config>();
-  let assetsValues = getAssetsValues(assets);
+  let assetsValues = getCalculatedValues(assets);
 
   const getWallet = async () => {
     // construct a query to get up to 10 undone todos 
@@ -89,7 +89,7 @@ const WalletPage = (props: ServerProps) => {
 
   const updateAssetsQuotes = async (assets: Asset[]) => {
     const assetsUpdated = await updateQuotes(assets,config);
-    assetsValues = getAssetsValues(assetsUpdated);
+    assetsValues = getCalculatedValues(assetsUpdated);
     if (wallet) await saveWallet(wallet);
     setAssets(assetsUpdated);
     Swal.fire(

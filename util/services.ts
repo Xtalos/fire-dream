@@ -2,7 +2,7 @@ import axios from 'axios';
 import { Asset, AssetValue, Config, Wallet } from '../types';
 import { writeBatch, doc, collection, getDoc, DocumentData, getDocsFromServer, orderBy, query, QueryDocumentSnapshot, where, setDoc } from 'firebase/firestore';
 import { firestore } from './firebase-client';
-import { formatValue, getAssetsValues } from './helpers';
+import { formatValue, getCalculatedValues } from './helpers';
 import moment from 'moment';
 import AssetValueCache from '../types/asset-value-cache';
 
@@ -34,7 +34,7 @@ export const updateWalletsQuotes = async (wallets: Wallet[], config?:Config) => 
         return Promise.all(results)
             .then(assets => updateQuotes(assets,config))
             .then(assets => {
-                const assetsValues = getAssetsValues(assets);
+                const assetsValues = getCalculatedValues(assets);
                 const walletRef = doc(firestore, 'wallets/' + wallet.id);
                 const updateWallet = {
                     invested: assetsValues.get('total').invested,
@@ -66,42 +66,23 @@ export const updateAssetValuesTimes = async (assetValues: AssetValue[]) => {
 }
 
 export const getOrUpdateCachedValues = async (owner:string,assets:Asset[],months:number,forceUpdate=false) => {
-    let cachedValues = await getCachedValues(owner);
+    let cachedValues = forceUpdate ? null : await getCachedValues(owner);
     if(forceUpdate || !cachedValues) {
-        cachedValues = {
+      cachedValues = {
             owner,
             createdOn: parseInt(moment().format('X')),
-            cache: convertResultToFirestore(await calculateTimeSeriesValues(assets,months))
+            cache: await getAssetsValues(assets,months)
         };
         const cachedValuesRef = doc(firestore, 'cachedValues/' + owner);
         await setDoc(cachedValuesRef, cachedValues);
-    }
-    return convertResultFromFirestore(cachedValues.cache);
+    } 
+    const assetValues = filterAssetvalues(cachedValues.cache,assets);
+
+    return await calculateTimeSeriesValues(assets,assetValues,months);
 }
 
-const convertResultToFirestore = (cache:any) => {
-    return {
-        timeAssetValues:convertNestedArrayToObject(cache.timeAssetValues),
-        timeCategoryValues:convertNestedArrayToObject(cache.timeCategoryValues),
-        timeTotalValues:convertNestedArrayToObject(cache.timeTotalValues)
-    }
-}
-
-const convertNestedArrayToObject = (nestedArray:any[][]) => {
-    return nestedArray.reduce((acc:{},array:any[],index:number) => {
-        return {
-            ...acc,
-            [index]:array
-        }
-    },{});
-}
-
-const convertResultFromFirestore = (cache:any) => {
-    return {
-        timeAssetValues:Object.values(cache.timeAssetValues),
-        timeCategoryValues:Object.values(cache.timeCategoryValues),
-        timeTotalValues:Object.values(cache.timeTotalValues)
-    }
+const filterAssetvalues = (assetValues:AssetValue[],filter:Asset[]) => {
+  return assetValues.filter(av => undefined !== filter.find(a => a.id == av.assetId));
 }
 
 const getCachedValues = async (owner:string) => {
@@ -121,7 +102,7 @@ const getTimesAxe = (months:number) => {
     return ta;
   }
 
-  const calculateTimeSeriesValues = async (assets: Asset[], months:number) => {
+  const getAssetsValues = async (assets: Asset[], months:number) => {
     const assetValueCollection = collection(firestore, 'assetsValues');
     const sixMonthAgo = moment().subtract(months, 'months');
     const assetIds = assets.map(a => a.id);
@@ -137,6 +118,11 @@ const getTimesAxe = (months:number) => {
     });
     await Promise.all(resultPromise);
     const assetValues = result.map(r => ({ ...r.data(), id: r.id }) as AssetValue);
+
+    return assetValues;
+  }
+
+  const calculateTimeSeriesValues = async (assets: Asset[], assetValues: AssetValue[], months:number) => {
     const timeAxe = getTimesAxe(months);
     const timeAssetValues = assets.reduce((acc: any[], asset: Asset) => {
       const alreadyExists = acc.find(a => a[0] === asset.name);
@@ -149,9 +135,9 @@ const getTimesAxe = (months:number) => {
     }, [timeAxe]);
 
     const timeTotalValues:any[] = [timeAxe, ['total'], ['invested']];
-
+    const avMap = splitIntoSingleAssetValues(assetValues);
     timeAxe.slice(1).forEach((t, i) => {
-      const singleDateValue = calculateSingleDateValues(t, assets, assetValues);
+      const singleDateValue = calculateSingleDateValues(t, assets, avMap);
       timeTotalValues[1].push(parseFloat(formatValue(singleDateValue.get('total').value)));
       timeTotalValues[2].push(parseFloat(formatValue(singleDateValue.get('total').invested)));
       assets.forEach(asset => {
@@ -195,8 +181,7 @@ const getTimesAxe = (months:number) => {
    * @param {AssetValue[]} assetValues
    * @returns
    */
-  const calculateSingleDateValues = (date: string, assets: Asset[], assetValues: AssetValue[]) => {
-    const avMap = splitIntoSingleAssetValues(assetValues);
+  const calculateSingleDateValues = (date: string, assets: Asset[], avMap: Map<string,AssetValue[]>) => {
     const modAssets = assets.map(asset => {
       const av = avMap.get(asset.id)?.filter((av: AssetValue) => parseInt('' + av.createdOn) < parseInt(moment(date+' 23:59:59', 'YYYY-MM-DD HH:mm:ss').format('X'))).pop();
       return {
@@ -207,5 +192,6 @@ const getTimesAxe = (months:number) => {
       }
     });
 
-    return getAssetsValues(modAssets);
+    //console.log(modAssets);
+    return getCalculatedValues(modAssets);
   }
