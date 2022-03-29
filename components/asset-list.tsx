@@ -59,7 +59,7 @@ const AssetList = ({ assets, onSubmit, walletId, updateQuotes, assetsValues }: P
                     <div className="col-12">
                         <ul className="list-group mb-5">
                             <li className="list-group-item bg-dark text-white" key="header">
-                                <div className="row">
+                                <div className="row d-none d-sm-flex">
                                     <div className="col-sm-2 p-1 p-lg-2 text-center">Asset</div>
                                     <div className="col-sm-1 p-1 p-lg-2 text-center">Risk</div>
                                     <div className="col-sm-2 p-1 p-lg-2 text-center">Invested</div>
@@ -74,11 +74,11 @@ const AssetList = ({ assets, onSubmit, walletId, updateQuotes, assetsValues }: P
                                     <li className="list-group-item" key={asset.id}>
                                         <div className="row">
                                             <div className="col-sm-2 p-2 p-lg-2 text-center d-flex flex-column"><div>{asset.name}</div><small>{asset.platform}</small></div>
-                                            <div className="col-sm-1 p-2 p-lg-2 text-center align-self-center">{formatRisk(assetsValues.get(asset.id).globalRisk)}</div>
-                                            <div className="col-sm-2 p-2 p-lg-2 text-center align-self-center">{formatValue(asset.lastInvested)}</div>
-                                            <div className="col-sm-2 p-2 p-lg-2 text-center align-self-center">{formatValue(assetsValues.get(asset.id).value)}</div>
-                                            <div className="col-sm-1 p-2 p-lg-2 text-center align-self-center">{formatRatio(assetsValues.get(asset.id).ratio)}</div>
-                                            <div onClick={() => setAssetTarget(asset)} role="button" className="col-sm-1 p-2 p-lg-2 text-center align-self-center">{formatRatio(asset.targetRatio)}</div>
+                                            <div className="col-sm-1 p-2 p-lg-2 text-center align-self-center"><div className="d-sm-none">Risk</div> {formatRisk(assetsValues.get(asset.id).globalRisk)}</div>
+                                            <div className="col-sm-2 p-2 p-lg-2 text-center align-self-center"><div className="d-sm-none">Invested</div> {formatValue(asset.lastInvested)}</div>
+                                            <div className="col-sm-2 p-2 p-lg-2 text-center align-self-center"><div className="d-sm-none">Value</div> {formatValue(assetsValues.get(asset.id).value)}</div>
+                                            <div className="col-sm-1 p-2 p-lg-2 text-center align-self-center"><div className="d-sm-none">Ratio</div> {formatRatio(assetsValues.get(asset.id).ratio)}</div>
+                                            <div onClick={() => setAssetTarget(asset)} role="button" className="col-sm-1 p-2 p-lg-2 text-center align-self-center"><div className="d-sm-none">Target</div> {formatRatio(asset.targetRatio)}</div>
                                             <div className="col-sm-3 align-self-center">
                                                 <div className="row">
                                                     <div className="col text-center">
@@ -117,9 +117,9 @@ const AssetList = ({ assets, onSubmit, walletId, updateQuotes, assetsValues }: P
                             <li className="list-group-item bg-dark text-white" key="totalKey">
                                 <div className="row">
                                     <div className="col-sm-2 p-1 p-lg-2 text-center">TOTAL</div>
-                                    <div className="col-sm-1 p-1 p-lg-2 text-center">{formatRisk(assetsValues.get('total').globalRisk)}</div>
-                                    <div className="col-sm-2 p-1 p-lg-2 text-center">{formatValue(assetsValues.get('total').invested)}</div>
-                                    <div className="col-sm-2 p-1 p-lg-2 text-center">{formatValue(assetsValues.get('total').value)}</div>
+                                    <div className="col-sm-1 p-1 p-lg-2 text-center"><div className="d-sm-none">Risk</div> {formatRisk(assetsValues.get('total').globalRisk)}</div>
+                                    <div className="col-sm-2 p-1 p-lg-2 text-center"><div className="d-sm-none">Invested</div> {formatValue(assetsValues.get('total').invested)}</div>
+                                    <div className="col-sm-2 p-1 p-lg-2 text-center"><div className="d-sm-none">Value</div> {formatValue(assetsValues.get('total').value)}</div>
                                     <div className="col-sm-2 p-1 p-lg-2 text-center">&#916; = {formatRatio(assetsValues.get('total').value / assetsValues.get('total').invested - 1)} %</div>
                                 </div>
                             </li>

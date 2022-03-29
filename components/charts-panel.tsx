@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import React from 'react';
 import { Asset, Wallet } from '../types';
-import { toPieData } from '../util/helpers';
+import { formatRatio, formatValue, toPieData } from '../util/helpers';
 import Pie from './charts/pie';
 import TimeSeriesChart from './charts/time-series-chart';
 
@@ -48,6 +48,11 @@ const ChartsPanel = ({ wallets, assets, timeValues }: Props) => {
                         <TimeSeriesChart data={timeValues.timeAssetValues} graphId='timeAssetValues' title='Assets Values' />
                     </div>
                 </div> : <></>}
+            <div className="row mt-5">
+                <div className="col-lg-10 offset-lg-1">
+                    <Pie data={toPieData(assets, 'platform')} graphId='platformsRatio' title='Platforms' format={formatValue} />
+                </div>
+            </div>
         </div>
     );
 }

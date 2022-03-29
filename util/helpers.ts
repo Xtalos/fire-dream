@@ -83,7 +83,7 @@ export const getCalculatedValues = (assets: Asset[]) => {
     return assetsValues;
 }
 
-export const toPieData = (assets: Asset[], field: 'category' | 'name', valueField = 'value'): BasicData[] => {
+export const toPieData = (assets: Asset[], field: 'category' | 'name' | 'platform', valueField = 'value'): BasicData[] => {
     const assetsValues = getCalculatedValues(assets);
     return assets.reduce((acc: BasicData[], asset: Asset) => {
         const existingDataIdx = acc.findIndex(data => data.name === asset[field]);
@@ -92,7 +92,7 @@ export const toPieData = (assets: Asset[], field: 'category' | 'name', valueFiel
             name: asset[field],
             value: coalesce(assetsValues.get(asset.id)[valueField]) + coalesce(existingData?.value)
         }]
-    },[]).filter(data => data.value > 0).sort((a,b) => b.value - a.value);
+    },[]);//.filter(data => data.value > 0);//.sort((a,b) => b.value - a.value);
 }
 
 export const formatDate = (date?:number,format='YYYY-MM-DD') => date && moment.unix(date).format(format);
