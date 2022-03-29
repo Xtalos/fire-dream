@@ -35,7 +35,7 @@ const Charts = (props: ServerProps) => {
     const w = result.map(item => ({ ...item.data(), id: item.id } as Wallet));
     const asstPromises = w.filter(wallet => wallet.assets).reduce((acc: Promise<Asset>[], wallet: Wallet): Promise<Asset>[] => {
       const results = Object.values(wallet.assets).map(async assetRef => {
-        return getDoc(assetRef).then(assetResult => ({ ...assetResult.data(), id: assetRef.id } as Asset));
+        return getDoc(assetRef).then(assetResult => ({ ...assetResult.data(), id: assetRef.id, targetRatio: assetResult.data()?.targetRatio * wallet.targetRatio } as Asset));
       });
       return [...acc, ...results]
     }, []);

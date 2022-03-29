@@ -21,12 +21,18 @@ const ChartsPanel = ({ wallets, assets, timeValues }: Props) => {
                     </div>
                 </div> : <></>}
             <div className="row mt-5">
-                <div className="col-lg-10 offset-lg-1">
+                <div className="col-md-6">
+                    <Pie data={toPieData(assets, 'category', 'targetRatio')} graphId='categoryCompositionTarget' title='Category Composition Target' />
+                </div>
+                <div className="mt-5 mt-md-0 col-md-6">
                     <Pie data={toPieData(assets, 'category')} graphId='categoryComposition' title='Category Composition' />
                 </div>
             </div>
             <div className="row mt-5">
-                <div className="col-lg-10 offset-lg-1">
+                <div className="col-md-6">
+                    <Pie data={toPieData(assets, 'name', 'targetRatio')} graphId='assetCompositionTarget' title='Asset Composition Target' />
+                </div>
+                <div className="mt-5 mt-md-0 col-md-6">
                     <Pie data={toPieData(assets, 'name')} graphId='assetsComposition' title='Assets Composition' />
                 </div>
             </div>

@@ -2,6 +2,10 @@ import moment from "moment";
 import { BasicData } from "../components/charts/pie";
 import { Asset, Wallet } from "../types";
 
+export const coalesce = (value: any, alt = 0) => {
+    return parseFloat((value || alt) + '');
+}
+
 export const formatValue = (value: string | number, unit = 'EUR') => {
     if (typeof value === 'string') {
         value = parseFloat(value);
@@ -86,7 +90,7 @@ export const toPieData = (assets: Asset[], field: 'category' | 'name', valueFiel
         const existingData = existingDataIdx >= 0 ? acc.splice(existingDataIdx,1)[0] : null;
         return [...acc, {
             name: asset[field],
-            value: assetsValues.get(asset.id)[valueField] + (existingData? existingData.value : 0)
+            value: coalesce(assetsValues.get(asset.id)[valueField]) + coalesce(existingData?.value)
         }]
     },[]).filter(data => data.value > 0).sort((a,b) => b.value - a.value);
 }
