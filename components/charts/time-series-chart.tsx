@@ -12,6 +12,9 @@ type Props = {
 
 const TimeSeriesChart = ({ data, graphId, title }: Props) => {
   useEffect(() => {
+    const container = document.getElementById(graphId) as HTMLElement;
+    let mouseX: number, mouseY: number;
+    container.onmousemove = event => { mouseX = event.clientX; mouseY = event.clientY; };
     //const columns = data.reduce((acc: any[], d) => [...acc, [d.name, d.value]], []);
     import('c3').then(c3 => {
       c3.generate({
@@ -20,6 +23,24 @@ const TimeSeriesChart = ({ data, graphId, title }: Props) => {
           x: 'x',
           //        xFormat: '%Y%m%d', // 'xFormat' can be used as custom format of 'x'
           columns: data
+        },
+        tooltip: {
+          position: function (data, width, height, element) {
+            var containerWidth, tooltipWidth, x, containerLeft;
+
+            containerWidth = container.clientWidth;
+            containerLeft = container.offsetLeft;
+            tooltipWidth = container.querySelector('.c3-tooltip-container')?.clientWidth as number;
+            x = mouseX + 50 - containerLeft;
+            if (mouseX > (containerLeft + containerWidth / 2)) {
+              x = mouseX - (containerLeft + width + 50);
+            }
+
+            return {
+              top: 0,
+              left: x
+            };
+          }
         },
         axis: {
           x: {

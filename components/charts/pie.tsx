@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { formatValue } from '../../util/helpers';
 
 export type BasicData = {
   name: string
