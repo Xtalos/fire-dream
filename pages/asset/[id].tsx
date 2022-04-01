@@ -31,14 +31,13 @@ const AssetPage = (props: ServerProps) => {
       const wallet = walletSnapshot.data() as Wallet;
       wallet.assets = {
         ...wallet.assets,
-        [value.name]: docRef
+        [docRef.id]: docRef
       }
       await updateDoc(walletRef, wallet);
-      router.replace('/asset/' + docRef.id)
     } else {
       await updateDoc(assetRef, value);
-      router.replace('/wallet/' + wallet);
     }
+    router.replace('/wallet/' + wallet);
     Swal.fire(
       'Good job!',
       'Asset saved successfully!',
