@@ -69,7 +69,7 @@ const AssetList = ({ assets, onSubmit, walletId, updateQuotes, assetsValues }: P
                                     <div className="col-sm-3 p-1 p-lg-2 text-center">Actions</div>
                                 </div>
                             </li>
-                            {assets.map(asset => {
+                            {assets.sort((a,b) => assetsValues.get(b.id).value - assetsValues.get(a.id).value).map(asset => {
                                 return (
                                     <li className="list-group-item" key={asset.id}>
                                         <div className="row">

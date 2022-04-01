@@ -19,6 +19,10 @@ const AssetPage = (props: ServerProps) => {
   const walletRef = doc(firestore, 'wallets/' + wallet);
   const [asset, setAsset] = useState<DocumentSnapshot<DocumentData> | null>(null);
 
+  const breadcrumbItems = [
+    { url: "/wallet/" + wallet, label: "Wallet" }
+  ]
+
   const getAsset = async () => {
     const result = await getDoc(assetRef);
     setAsset(result);
@@ -62,7 +66,7 @@ const AssetPage = (props: ServerProps) => {
         <meta name="description" content="Next.js firebase todos app" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <FireDreamContainer>
+      <FireDreamContainer breadcrumbItems={breadcrumbItems}>
         <AssetForm asset={asset?.data() as Asset} onSubmit={saveAsset} />
       </FireDreamContainer>
     </>

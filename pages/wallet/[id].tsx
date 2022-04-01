@@ -88,7 +88,7 @@ const WalletPage = (props: ServerProps) => {
   }
 
   const updateAssetsQuotes = async (assets: Asset[]) => {
-    const assetsUpdated = await updateQuotes(assets,config);
+    const assetsUpdated = await updateQuotes(assets, config);
     assetsValues = getCalculatedValues(assetsUpdated);
     if (wallet) await saveWallet(wallet);
     setAssets(assetsUpdated);
@@ -104,7 +104,7 @@ const WalletPage = (props: ServerProps) => {
       case undefined: return void 0;
       case 'new':
         break;
-      default: 
+      default:
         getWallet();
         getConfig();
     }

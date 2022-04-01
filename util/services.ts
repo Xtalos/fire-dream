@@ -183,7 +183,8 @@ const getTimesAxe = (months:number) => {
    */
   const calculateSingleDateValues = (date: string, assets: Asset[], avMap: Map<string,AssetValue[]>) => {
     const modAssets = assets.map(asset => {
-      const av = avMap.get(asset.id)?.filter((av: AssetValue) => parseInt('' + av.createdOn) < parseInt(moment(date+' 23:59:59', 'YYYY-MM-DD HH:mm:ss').format('X'))).pop();
+      const av = avMap.get(asset.id)?.filter((av: AssetValue) => av.quantity > 0 && av.value > 0)
+      .filter((av: AssetValue) => parseInt('' + av.createdOn) < parseInt(moment(date+' 23:59:59', 'YYYY-MM-DD HH:mm:ss').format('X'))).pop();
       return {
         ...asset,
         lastQuantity: av?.quantity || 0,
