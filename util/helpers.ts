@@ -47,18 +47,18 @@ export const getCalculatedValues = (assets: Asset[]) => {
     let totalRatio = 0;
     let globalRisk = 0;
     const conversionMap = new Map<string, number>();
-    assets.forEach(asset => conversionMap.set(asset.symbol, asset.lastValue));
+    assets.filter(asset => asset.lastValue).forEach(asset => conversionMap.set(asset.symbol, asset.lastValue));
 
     const assetsValues = new Map<string, any>();
     assets.forEach(asset => {
         const conversion = conversionMap.get(asset.conversion) || 1;
-        const value = conversion * (asset.lastValue || 0) * (asset.lastQuantity || 0);
+        const value = conversion * (parseFloat(''+asset.lastValue) || 0) * (parseFloat(asset.lastQuantity+'') || 0);
         totalValue += value || 0;
         totalInvested += parseFloat('' + (asset.lastInvested || 0));
         totalRatio += parseFloat('' + (asset.targetRatio || 0));
         assetsValues.set(asset.id, {
             value,
-            targetRatio: asset.targetRatio
+            targetRatio: asset.targetRatio || 0
         });
     });
     assets.forEach(asset => {
