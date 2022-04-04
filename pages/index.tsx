@@ -52,13 +52,19 @@ const Home = (props: ServerProps) => {
   }, []);
 
   const updateQuotes = async (wallts: Wallet[]) => {
-    const updatedWallets = await updateWalletsQuotes(wallts,config);
-    setWallets(updatedWallets);
-    Swal.fire(
-      'Good job!',
-      'Assets quotes updated successfully!',
-      'success'
-    );
+    try {
+      const updatedWallets = await updateWalletsQuotes(wallts,config);
+      setWallets(updatedWallets);
+      Swal.fire(
+        'Good job!',
+        'Assets quotes updated successfully!',
+        'success'
+      );
+    } catch(e) {
+      return Swal.fire('Error!',
+      'Failed to update assets quotes',
+      'error');
+    }
   }
 
   return (

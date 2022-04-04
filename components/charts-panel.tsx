@@ -12,14 +12,28 @@ type Props = {
 }
 
 const ChartsPanel = ({ wallets, assets, timeValues }: Props) => {
+    console.log(timeValues.timeTotalValues);
+
+    const getMonthlyAvgInvested = ({timeTotalValues}:any) => {
+        const invested = timeTotalValues[2] as any[];
+        return formatValue((parseFloat(''+invested[invested.length-1]) - parseFloat(''+invested[1]))/6);
+    }
+
     return (
         <div className="row">
             {timeValues.timeTotalValues.length ?
-                <div className="row mt-5">
-                    <div className="col-lg-10 offset-lg-1">
-                        <TimeSeriesChart data={timeValues.timeTotalValues} graphId='timeTotalValues' title='Total Value' />
+                <>
+                    <div className="row mt-5">
+                        <div className="col-lg-10 offset-lg-1">
+                            <h6 className="text-center">Monthly Average Invested: {getMonthlyAvgInvested(timeValues)}</h6>
+                        </div>
                     </div>
-                </div> : <></>}
+                    <div className="row mt-5">
+                        <div className="col-lg-10 offset-lg-1">
+                            <TimeSeriesChart data={timeValues.timeTotalValues} graphId='timeTotalValues' title='Total Value' />
+                        </div>
+                    </div>
+                </> : <></>}
             <div className="row mt-5">
                 <div className="col-md-6">
                     <Pie data={toPieData(assets, 'category', 'targetRatio')} graphId='categoryCompositionTarget' title='Category Composition Target' />

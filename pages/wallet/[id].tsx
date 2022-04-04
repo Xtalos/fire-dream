@@ -88,15 +88,21 @@ const WalletPage = (props: ServerProps) => {
   }
 
   const updateAssetsQuotes = async (assets: Asset[]) => {
-    const assetsUpdated = await updateQuotes(assets, config);
-    assetsValues = getCalculatedValues(assetsUpdated);
-    if (wallet) await saveWallet(wallet);
-    setAssets(assetsUpdated);
-    Swal.fire(
-      'Good job!',
-      'Assets quotes updated successfully!',
-      'success'
-    );
+    try {
+      const assetsUpdated = await updateQuotes(assets, config);
+      assetsValues = getCalculatedValues(assetsUpdated);
+      if (wallet) await saveWallet(wallet);
+      setAssets(assetsUpdated);
+      Swal.fire(
+        'Good job!',
+        'Assets quotes updated successfully!',
+        'success'
+      );
+    } catch (e) {
+      return Swal.fire('Error!',
+        'Failed to update assets quotes',
+        'error');
+    }
   }
 
   useEffect(() => {

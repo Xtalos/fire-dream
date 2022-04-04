@@ -12,6 +12,10 @@ type Data = {
   values: AssetValue[]
 }
 
+type ApiError = {
+  error: any
+}
+
 const splitIntoChunks = (array: any[], chunkSize: number) => {
   let i, j;
   const chunks = [];
@@ -24,7 +28,7 @@ const splitIntoChunks = (array: any[], chunkSize: number) => {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data>
+  res: NextApiResponse<Data | ApiError>
 ) {
   const values:AssetValue[] = [];
   const { assets, config } = req.body as { assets: Asset[], config: Config };
@@ -55,6 +59,8 @@ export default async function handler(
       });
     }).catch(function (error) {
       console.error(error);
+      res.status(403).json({ error });
+      return;
     });
   });
 
