@@ -4,12 +4,13 @@ import styles from '../styles/Home.module.css'
 import { firestore } from '../util/firebase-client';
 import { collection, QueryDocumentSnapshot, DocumentData, query, where, getDocs, getDoc } from "@firebase/firestore";
 import { useEffect, useState } from 'react';
-import { Asset, Wallet } from '../types';
+import { Asset, Config, Wallet } from '../types';
 import { getServerSidePropsWithAuth, ServerProps } from '../util/get-server-side-props-with-auth';
 import ChartsPanel from '../components/charts-panel';
 import { getOrUpdateCachedValues } from '../util/services';
 import Swal from 'sweetalert2';
 import { Form } from 'react-bootstrap';
+import { doc } from 'firebase/firestore';
 
 const walletsCollection = collection(firestore, 'wallets');
 
@@ -23,6 +24,16 @@ const Charts = (props: ServerProps) => {
   const [timeValues, setTimeValues] = useState<{ timeAssetValues: any[], timeCategoryValues: any[], timeTotalValues: any[] }>(
     { timeAssetValues: [], timeCategoryValues: [], timeTotalValues: [] }
   );
+  const configRef = doc(firestore, 'config/' + props.authUserId);
+  const [config, setConfig] = useState<Config>();
+
+  const getConfig = async () => {
+    const result = await getDoc(configRef);
+
+    const c = result.data() as Config;
+    setConfig(c);
+    return c;
+  };
 
   const getWallets = async () => {
     const walletsQuery = query(walletsCollection, where('owner', '==', props.authUserId));
@@ -43,12 +54,13 @@ const Charts = (props: ServerProps) => {
 
     setAssets(a);
     setWallets(w);
-    await filterWallets(w,a);
+    await filterWallets(w, a);
   };
 
-  const updateTimeValues = async (a: Asset[], forceUpdate = false) => {
-    if(forceUpdate) (document.getElementById('filterWallet') as HTMLSelectElement).value = 'all';
-    let tv = await getOrUpdateCachedValues(props.authUserId, a, 6, forceUpdate);
+  const updateTimeValues = async (a: Asset[], forceUpdate = false, normalize = false) => {
+    if (forceUpdate) (document.getElementById('filterWallet') as HTMLSelectElement).value = 'all';
+    let cfg = config || await getConfig();
+    let tv = await getOrUpdateCachedValues(props.authUserId, a, 6, forceUpdate, normalize, cfg.revaluationTax || 0);
     tv = {
       timeAssetValues: checkTimeValuesConsistence(tv.timeAssetValues) ? tv.timeAssetValues : [],
       timeCategoryValues: checkTimeValuesConsistence(tv.timeCategoryValues) ? tv.timeCategoryValues : [],
@@ -75,8 +87,8 @@ const Charts = (props: ServerProps) => {
     return safe;
   }
 
-  const filterAssets = (ws: Wallet[],as: Asset[]) => {
-    let newAssets:Asset[] = [];
+  const filterAssets = (ws: Wallet[], as: Asset[]) => {
+    let newAssets: Asset[] = [];
     ws.forEach(w => {
       newAssets = newAssets.concat(as.filter(a => undefined !== Object.values(w.assets).find(wa => wa.id == a.id)));
     })
@@ -84,9 +96,9 @@ const Charts = (props: ServerProps) => {
     return newAssets;
   }
 
-  const filterWallets = async (ws:Wallet[],as: Asset[]) => {
+  const filterWallets = async (ws: Wallet[], as: Asset[]) => {
     setSelectedWallets(ws);
-    const filteredAssets = filterAssets(ws,as);
+    const filteredAssets = filterAssets(ws, as);
     setSelectedAssets(filteredAssets);
     await updateTimeValues(filteredAssets);
   }
@@ -95,11 +107,15 @@ const Charts = (props: ServerProps) => {
     const id = event.target.value;
     console.log(id);
     if (id === 'all') {
-      await filterWallets(wallets,assets);
+      await filterWallets(wallets, assets);
     } else {
-      await filterWallets(wallets.filter(wallet => wallet.id == id),assets);
+      await filterWallets(wallets.filter(wallet => wallet.id == id), assets);
     }
+  }
 
+  const normalizeSwitchHandler = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(event.target.checked);
+    await updateTimeValues(selectedAssets,false,event.target.checked);
   }
 
   useEffect(() => {
@@ -113,13 +129,23 @@ const Charts = (props: ServerProps) => {
         <meta name="charts" content="charts" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <FireDreamContainer>
+      <FireDreamContainer wallets={wallets}>
         <div className="row mt-4">
           <div className="col-lg-10 offset-lg-1 text-center">
             <Form.Select aria-label="Filter wallet" id="filterWallet" onChange={filterWalletsHandler}>
               <option value="all">all</option>
               {wallets.map(wallet => <option key={wallet.id} value={wallet.id}>{wallet.label}</option>)}
             </Form.Select>
+          </div>
+        </div>
+        <div className="row mt-4">
+          <div className="col-lg-10 offset-lg-1">
+            <Form.Check
+              onChange={normalizeSwitchHandler}
+              type="switch"
+              id="normalize-switch"
+              label="Normalize"
+            />
           </div>
         </div>
         <ChartsPanel wallets={selectedWallets} assets={selectedAssets} timeValues={timeValues} />

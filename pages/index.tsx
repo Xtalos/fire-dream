@@ -74,7 +74,7 @@ const Home = (props: ServerProps) => {
         <meta name="description" content="Next.js firebase todos app" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <FireDreamContainer>
+      <FireDreamContainer wallets={wallets}>
         <WalletList wallets={wallets} updateQuotes={updateQuotes} />
       </FireDreamContainer>
       <footer className={styles.footer}>

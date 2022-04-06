@@ -1,15 +1,17 @@
 /* eslint-disable @next/next/no-img-element */
 import { useRouter } from 'next/router';
 import React, { ReactNode, FunctionComponent } from 'react';
-import { Breadcrumb, Container, Nav, Navbar } from 'react-bootstrap';
+import { Breadcrumb, Container, Nav, Navbar, NavDropdown } from 'react-bootstrap';
+import { Wallet } from '../types';
 import { Auth } from '../util/firebase-client';
 
 type Props = {
   children?: ReactNode
   breadcrumbItems?: { label: string, url: string }[]
+  wallets?: Wallet[]
 }
 
-const FireDreamContainer: FunctionComponent<{ breadcrumbItems?: { label: string, url: string }[] }> = ({ children, breadcrumbItems = [] }: Props) => {
+const FireDreamContainer: FunctionComponent<{ breadcrumbItems?: { label: string, url: string }[], wallets?: Wallet[] }> = ({ children, breadcrumbItems = [], wallets = [] }: Props) => {
   const router = useRouter();
 
   const logout = async () => {
@@ -37,6 +39,11 @@ const FireDreamContainer: FunctionComponent<{ breadcrumbItems?: { label: string,
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />
           <Navbar.Collapse id="responsive-navbar-nav">
             <Nav className="me-auto">
+              {wallets.length &&
+                <NavDropdown title="Wallets" id="basic-nav-dropdown">
+                  {wallets.map((wallet:Wallet) => <NavDropdown.Item key={wallet.id} href={'wallet/' + wallet.id}>{wallet.label}</NavDropdown.Item>)}
+                </NavDropdown>
+              }
               <Nav.Link href="/charts">Charts</Nav.Link>
               <Nav.Link href="/config">Config</Nav.Link>
               <Nav.Link onClick={() => logout()}>Logout</Nav.Link>

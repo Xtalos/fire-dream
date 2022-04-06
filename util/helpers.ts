@@ -41,7 +41,7 @@ export const formatRisk = (value: string | number) => {
     return Math.round(value * 10) / 10;
 }
 
-export const getCalculatedValues = (assets: Asset[]) => {
+export const getCalculatedValues = (assets: Asset[], normalize=false) => {
     let totalValue = 0;
     let totalInvested = 0;
     let totalRatio = 0;
@@ -52,7 +52,8 @@ export const getCalculatedValues = (assets: Asset[]) => {
     const assetsValues = new Map<string, any>();
     assets.forEach(asset => {
         const conversion = conversionMap.get(asset.conversion) || 1;
-        const value = conversion * (parseFloat(''+asset.lastValue) || 0) * (parseFloat(asset.lastQuantity+'') || 0);
+        const normalization = normalize && asset.lastInvested ? parseFloat(''+asset.lastInvested) : 0;
+        const value = conversion * (parseFloat(''+asset.lastValue) || 0) * (parseFloat(asset.lastQuantity+'') || 0) - normalization;
         totalValue += value || 0;
         totalInvested += parseFloat('' + (asset.lastInvested || 0));
         totalRatio += parseFloat('' + (asset.targetRatio || 0));
@@ -77,7 +78,7 @@ export const getCalculatedValues = (assets: Asset[]) => {
         targetRatio: totalRatio,
         globalRisk: globalRisk,
         ratio: 1,
-        invested: totalInvested
+        invested: normalize ? 0 : totalInvested
     });
 
     return assetsValues;

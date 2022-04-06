@@ -12,7 +12,6 @@ type Props = {
 }
 
 const ChartsPanel = ({ wallets, assets, timeValues }: Props) => {
-    console.log(timeValues.timeTotalValues);
 
     const getMonthlyAvgInvested = ({timeTotalValues}:any) => {
         const invested = timeTotalValues[2] as any[];
@@ -25,7 +24,7 @@ const ChartsPanel = ({ wallets, assets, timeValues }: Props) => {
                 <>
                     <div className="row mt-5">
                         <div className="col-lg-10 offset-lg-1">
-                            <h6 className="text-center">Monthly Average Invested: {getMonthlyAvgInvested(timeValues)}</h6>
+                            <h6 className="text-center">Monthly Average Invested: {getMonthlyAvgInvested(timeValues)} €</h6>
                         </div>
                     </div>
                     <div className="row mt-5">

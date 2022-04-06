@@ -31,6 +31,12 @@ const ConfigForm = ({ config, onSubmit }: Props) => {
                                 <input type="text" className="form-control" onChange={handleChange} id="yahooFinanceApiKey" defaultValue={config?.yahooFinanceApiKey} />
                             </div>
                         </div>
+                        <div className="col-md-6">
+                            <div className="mb-3">
+                                <label htmlFor="revaluationTax" className="form-label">Benchmark Tax</label>
+                                <input type="number" className="form-control" onChange={handleChange} id="revaluationTax" defaultValue={config?.revaluationTax} />
+                            </div>
+                        </div>
                     </div>
                     <div className="row">
                         <div className="col-12">

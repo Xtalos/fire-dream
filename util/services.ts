@@ -65,7 +65,7 @@ export const updateAssetValuesTimes = async (assetValues: AssetValue[]) => {
     return 0;
 }
 
-export const getOrUpdateCachedValues = async (owner:string,assets:Asset[],months:number,forceUpdate=false) => {
+export const getOrUpdateCachedValues = async (owner:string,assets:Asset[],months:number,forceUpdate=false,normalize=false,benchmarkTax=0) => {
     let cachedValues = forceUpdate ? null : await getCachedValues(owner);
     if(forceUpdate || !cachedValues) {
       cachedValues = {
@@ -78,7 +78,7 @@ export const getOrUpdateCachedValues = async (owner:string,assets:Asset[],months
     } 
     const assetValues = filterAssetvalues(cachedValues.cache,assets);
 
-    return await calculateTimeSeriesValues(assets,assetValues,months);
+    return await calculateTimeSeriesValues(assets,assetValues,months,normalize,benchmarkTax);
 }
 
 const filterAssetvalues = (assetValues:AssetValue[],filter:Asset[]) => {
@@ -122,7 +122,7 @@ const getTimesAxe = (months:number) => {
     return assetValues;
   }
 
-  const calculateTimeSeriesValues = async (assets: Asset[], assetValues: AssetValue[], months:number) => {
+  const calculateTimeSeriesValues = async (assets: Asset[], assetValues: AssetValue[], months:number, normalize = false, benchmarkTax = 0) => {
     const timeAxe = getTimesAxe(months);
     const timeAssetValues = assets.reduce((acc: any[], asset: Asset) => {
       const alreadyExists = acc.find(a => a[0] === asset.name);
@@ -134,12 +134,27 @@ const getTimesAxe = (months:number) => {
       return alreadyExists !== undefined ? acc : [...acc, [asset.category]]
     }, [timeAxe]);
 
-    const timeTotalValues:any[] = [timeAxe, ['total'], ['invested']];
+    const timeTotalValues:any[] = [timeAxe, ['total'], ['invested'], ['benchmark']];
     const avMap = splitIntoSingleAssetValues(assetValues);
+    let startingValueRevalued:number, startingInvested:number;
     timeAxe.slice(1).forEach((t, i) => {
-      const singleDateValue = calculateSingleDateValues(t, assets, avMap);
-      timeTotalValues[1].push(parseFloat(formatValue(singleDateValue.get('total').value)));
-      timeTotalValues[2].push(parseFloat(formatValue(singleDateValue.get('total').invested)));
+      const singleDateValue = calculateSingleDateValues(t, assets, avMap, normalize);
+      const timeTotalValue = parseFloat(formatValue(singleDateValue.get('total').value));
+      const timeTotalInvested = parseFloat(formatValue(singleDateValue.get('total').invested));
+      timeTotalValues[1].push(timeTotalValue);
+      timeTotalValues[2].push(timeTotalInvested);
+      const dayToNow = moment().diff(t,'days');
+      const revaluationFactor = Math.pow(1 + benchmarkTax/100, dayToNow/365);
+      if(i === 0) {
+        startingValueRevalued = timeTotalValue * revaluationFactor;
+        startingInvested = timeTotalInvested;
+      }
+      const deltaInvested = timeTotalInvested - startingInvested;
+      startingInvested = timeTotalInvested;
+      const revaluationValue = (deltaInvested > 0 ? deltaInvested : 0) * revaluationFactor;
+      startingValueRevalued += revaluationValue
+      timeTotalValues[3].push(parseFloat(formatValue(startingValueRevalued)));
+
       assets.forEach(asset => {
         let categoryIdx = timeCategoryValues.findIndex(tav => tav[0] === asset.category);
         if (timeCategoryValues[categoryIdx].length === (i + 1)) {
@@ -181,7 +196,7 @@ const getTimesAxe = (months:number) => {
    * @param {AssetValue[]} assetValues
    * @returns
    */
-  const calculateSingleDateValues = (date: string, assets: Asset[], avMap: Map<string,AssetValue[]>) => {
+  const calculateSingleDateValues = (date: string, assets: Asset[], avMap: Map<string,AssetValue[]>, normalize:boolean) => {
     const modAssets = assets.map(asset => {
       const av = avMap.get(asset.id)?.filter((av: AssetValue) => parseInt('' + av.createdOn) < parseInt(moment(date+' 23:59:59', 'YYYY-MM-DD HH:mm:ss').format('X'))).pop();
       return {
@@ -193,5 +208,5 @@ const getTimesAxe = (months:number) => {
     });
 
     //console.log(modAssets);
-    return getCalculatedValues(modAssets);
+    return getCalculatedValues(modAssets,normalize);
   }
