@@ -45,6 +45,7 @@ const FireDreamContainer: FunctionComponent<{ breadcrumbItems?: { label: string,
                 </NavDropdown>
               }
               <Nav.Link href="/charts">Charts</Nav.Link>
+              <Nav.Link href="/assets-values">Values</Nav.Link>
               <Nav.Link href="/config">Config</Nav.Link>
               <Nav.Link onClick={() => logout()}>Logout</Nav.Link>
             </Nav>
