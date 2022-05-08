@@ -48,13 +48,15 @@ export default async function handler(
     }).then(function (response) {
       const {quoteResponse:{result}} = response.data;
       result.forEach((element:ApiResponseValue) => {
-        const af = assets.find(asset => asset.symbol == element.symbol);
-        af && values.push({
-          value: element.regularMarketPrice,
-          assetId: af.id,
-          invested: af.lastInvested,
-          quantity: af.lastQuantity,
-          createdOn
+        const afs = assets.filter(asset => asset.symbol == element.symbol);
+        afs.forEach(af => {
+          values.push({
+            value: element.regularMarketPrice,
+            assetId: af.id,
+            invested: af.lastInvested,
+            quantity: af.lastQuantity,
+            createdOn
+          });
         });
       });
     }).catch(function (error) {
