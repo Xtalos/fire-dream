@@ -1,4 +1,5 @@
 import React, { FormEventHandler } from 'react';
+import { Form } from 'react-bootstrap';
 import { Asset } from '../types';
 
 type Props = {
@@ -17,6 +18,13 @@ const AssetForm = ({ asset, onSubmit }: Props) => {
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const id = event.target.id;
         const value = event.target.value;
+        console.log(event.target);
+        assetModified = { ...assetModified, [id]: value };
+    }
+
+    const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const id = event.target.id;
+        const value = event.target.checked;
         assetModified = { ...assetModified, [id]: value };
     }
 
@@ -25,6 +33,17 @@ const AssetForm = ({ asset, onSubmit }: Props) => {
             <div className="col-lg-10 offset-lg-1">
                 <form onSubmit={handleSubmit}>
                     <div className="row mt-5">
+                        <div className="col-12">
+                                <Form.Check
+                                onChange={handleSwitchChange}
+                                type="switch"
+                                id="hidden"
+                                label="Hidden"
+                                defaultChecked={asset?.hidden}
+                                />
+                        </div>
+                    </div>
+                    <div className="row mt-3">
                         <div className="col-md-6">
                             <div className="mb-3">
                                 <label htmlFor="name" className="form-label">Name</label>

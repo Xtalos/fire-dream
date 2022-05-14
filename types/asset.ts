@@ -14,6 +14,7 @@ type Asset = {
     currency: string
     currencyRisk: number
     conversion: string
+    hidden: boolean
     createdOn: Time
     updatedOn: Time
     lastQuantity: number

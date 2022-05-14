@@ -2,7 +2,7 @@
 import moment from 'moment';
 import Link from 'next/link';
 import React, { useState } from 'react';
-import { Alert, Modal } from 'react-bootstrap';
+import { Alert, Form, Modal } from 'react-bootstrap';
 import { Asset, AssetValue } from '../types';
 import AssetValueForm from './asset-value-form';
 import { formatRatio, formatRisk, formatValue, toPieData } from '../util/helpers';
@@ -19,6 +19,7 @@ type Props = {
 const AssetList = ({ assets, onSubmit, walletId, updateQuotes, assetsValues }: Props) => {
     const [assetValue, setAssetValue] = useState<AssetValue | null>(null);
     const [assetTarget, setAssetTarget] = useState<Asset | null>(null);
+    const [showHiddenAssets, setShowHiddenAssets] = useState<boolean>(false);
 
     const changeAssetValueHandler = (asset: Asset) => {
         setAssetValue({
@@ -34,6 +35,8 @@ const AssetList = ({ assets, onSubmit, walletId, updateQuotes, assetsValues }: P
         onSubmit(av);
         setAssetValue(null);
     }
+
+    assets = assets.filter(a => showHiddenAssets || a.hidden !== true);
 
     return (
         assetsValues && <div className="row">
@@ -55,6 +58,15 @@ const AssetList = ({ assets, onSubmit, walletId, updateQuotes, assetsValues }: P
                         Total Target Ratio is {formatRatio(assetsValues.get('total').targetRatio)}
                     </Alert>
                 }
+                <div className="row mt-5">
+                    <div className="col-12 d-flex flex-row-reverse">
+                        <Form.Check
+                            onChange={() => setShowHiddenAssets(!showHiddenAssets)}
+                            type="switch"
+                            label="Show hidden assets"
+                        />
+                    </div>
+                </div>
                 <div className="row">
                     <div className="col-12">
                         <ul className="list-group mb-5">
