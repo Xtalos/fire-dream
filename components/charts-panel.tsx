@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+import moment, { months } from 'moment';
 import React from 'react';
 import { Asset, Wallet } from '../types';
 import { formatRatio, formatValue, toPieData } from '../util/helpers';
@@ -13,9 +14,13 @@ type Props = {
 
 const ChartsPanel = ({ wallets, assets, timeValues }: Props) => {
 
-    const getMonthlyAvgInvested = ({timeTotalValues}:any) => {
+    const getMonthlyMobileAvgInvested = ({timeTotalValues}:any) => {
         const invested = timeTotalValues[2] as any[];
         return formatValue((parseFloat(''+invested[invested.length-1]) - parseFloat(''+invested[1]))/6);
+    }
+    const getMonthlyAvgInvested = ({timeTotalValues}:any) => {
+        const invested = timeTotalValues[2] as any[];
+        return formatValue(30*parseFloat(''+invested[invested.length-1]) / moment().diff('2021-10-01', 'days'));
     }
 
     return (
@@ -24,6 +29,7 @@ const ChartsPanel = ({ wallets, assets, timeValues }: Props) => {
                 <>
                     <div className="row mt-5">
                         <div className="col-lg-10 offset-lg-1">
+                            <h6 className="text-center">Monthly Mobile Average Invested: {getMonthlyMobileAvgInvested(timeValues)} €</h6>
                             <h6 className="text-center">Monthly Average Invested: {getMonthlyAvgInvested(timeValues)} €</h6>
                         </div>
                     </div>
