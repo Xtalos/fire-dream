@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { Asset, AssetValue, Config, Wallet } from '../types';
-import { writeBatch, doc, collection, getDoc, DocumentData, getDocsFromServer, orderBy, query, QueryDocumentSnapshot, where, setDoc, deleteDoc, getDocs } from 'firebase/firestore';
+import { writeBatch, doc, collection, getDoc, DocumentData, getDocsFromServer, orderBy, query, QueryDocumentSnapshot, where, setDoc, deleteDoc, getDocs, addDoc, updateDoc } from 'firebase/firestore';
 import { firestore } from './firebase-client';
 import { formatValue, getCalculatedValues } from './helpers';
 import moment from 'moment';
@@ -214,7 +214,7 @@ const calculateSingleDateValues = (date: string, assets: Asset[], avMap: Map<str
 export const getAssetsValuesByPeriod = async (assets: Asset[], start: string, end: string) => {
   const startDate = moment(start, 'YYYY-MM-DD');
   const endDate = moment(end, 'YYYY-MM-DD');
-  if(!startDate.isValid() || !endDate.isValid()) {
+  if (!startDate.isValid() || !endDate.isValid()) {
     return [];
   }
   const assetValueCollection = collection(firestore, 'assetsValues');
@@ -245,6 +245,16 @@ export const deleteFromDB = async (resourceName: string, id: string) => {
 export const saveOnDB = async (resourceName: string, resource: any) => {
   const resourceRef = doc(firestore, resourceName + (resource.id ? '/' + resource.id : ''));
   return await setDoc(resourceRef, resource);
+}
+
+export const createNewAssetValue = async (av: AssetValue) => {
+  const valueRef = await addDoc(collection(firestore, 'assetsValues'), av);
+  const assetRef = doc(firestore, 'assets/' + av.assetId);
+  await updateDoc(assetRef, {
+    lastQuantity: av.quantity,
+    lastValue: av.value,
+    lastInvested: av.invested
+  });
 }
 
 export const getWalletsAndAssets = async (authUserId: string) => {
