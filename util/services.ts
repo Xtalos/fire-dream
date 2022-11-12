@@ -124,6 +124,8 @@ const getAssetsValues = async (assets: Asset[], months: number) => {
 
 const calculateTimeSeriesValues = async (assets: Asset[], assetValues: AssetValue[], months: number, normalize = false, benchmarkTax = 0) => {
   const timeAxe = getTimesAxe(months);
+  const firstAssetsDate = moment(assetValues[0]?.createdOn,'X').format('YYYY-MM-DD');
+  timeAxe[1] = timeAxe[1] != firstAssetsDate ? firstAssetsDate : timeAxe[1];
   const timeAssetValues = assets.reduce((acc: any[], asset: Asset) => {
     const alreadyExists = acc.find(a => a[0] === asset.name);
     return alreadyExists !== undefined ? acc : [...acc, [asset.name]]
