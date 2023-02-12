@@ -1,7 +1,8 @@
 import moment from 'moment';
 import React from 'react';
-import { InputGroup, FormControl } from 'react-bootstrap';
+import { InputGroup, FormControl, Form } from 'react-bootstrap';
 import { Wallet } from '../types';
+import asset from '../types/asset';
 import { formatDate } from '../util/helpers';
 
 type Props = {
@@ -38,11 +39,29 @@ const WalletForm = ({ wallet, onSubmit }: Props) => {
         walletModified = { ...walletModified, [id]: value };
     }
 
+    const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const id = event.target.id;
+        const value = event.target.checked;
+        console.log(value);
+        walletModified = { ...walletModified, [id]: value };
+    }
+
     return (
         <div className="row">
             <div className="col-10 offset-1">
                 <form onSubmit={handleSubmit}>
                     <div className="row mt-5">
+                        <div className="col-12">
+                                <Form.Check
+                                onChange={handleSwitchChange}
+                                type="switch"
+                                id="active"
+                                label="Active"
+                                defaultChecked={wallet?.active}
+                                />
+                        </div>
+                    </div>
+                    <div className="row">
                         <div className="col-md-6">
                             <div className="mb-3">
                                 <label htmlFor="label" className="form-label">Label</label>

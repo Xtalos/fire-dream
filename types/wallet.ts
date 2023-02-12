@@ -10,6 +10,7 @@ type Wallet = {
     lastValue: number
     risk: number
     owner: string
+    active: boolean
     assets: { [label:string]:DocumentReference }
 }
 

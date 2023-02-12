@@ -24,7 +24,7 @@ const Home = (props: ServerProps) => {
   const [config, setConfig] = useState<Config>();
 
   const getWallets = async () => {
-    const walletsQuery = query(walletsCollection, where('owner', '==', props.authUserId));
+    const walletsQuery = query(walletsCollection, where('owner', '==', props.authUserId), where('active', '==', true));
     const querySnapshot = await getDocs(walletsQuery);
     const result: QueryDocumentSnapshot<DocumentData>[] = [];
     querySnapshot.forEach((snapshot) => {

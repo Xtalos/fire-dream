@@ -261,7 +261,7 @@ export const createNewAssetValue = async (av: AssetValue) => {
 
 export const getWalletsAndAssets = async (authUserId: string) => {
   const walletsCollection = collection(firestore, 'wallets');
-  const walletsQuery = query(walletsCollection, where('owner', '==', authUserId));
+  const walletsQuery = query(walletsCollection, where('owner', '==', authUserId),where('active', '==', true));
   const querySnapshot = await getDocs(walletsQuery);
   const result: QueryDocumentSnapshot<DocumentData>[] = [];
   querySnapshot.forEach((snapshot: any) => {

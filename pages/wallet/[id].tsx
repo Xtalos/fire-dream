@@ -50,6 +50,7 @@ const WalletPage = (props: ServerProps) => {
   };
 
   const saveWallet = async (value: Wallet) => {
+    console.log(value);
     if (id === 'new') {
       value.owner = props.authUserId;
       const docRef = await addDoc(collection(firestore, 'wallets'), value);

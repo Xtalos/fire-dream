@@ -26,6 +26,7 @@ const AssetForm = ({ asset, onSubmit }: Props) => {
         const id = event.target.id;
         const value = event.target.checked;
         assetModified = { ...assetModified, [id]: value };
+        console.log(assetModified);
     }
 
     return (
