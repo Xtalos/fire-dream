@@ -62,6 +62,10 @@ const AssetForm = ({ asset, onSubmit }: Props) => {
                                 <label htmlFor="conversion" className="form-label">Conversion</label>
                                 <input type="text" className="form-control" onChange={handleChange} id="conversion" defaultValue={asset?.conversion} />
                             </div>
+                            <div className="mb-3">
+                                <label htmlFor="minQuantity" className="form-label">Min Rebalance Value</label>
+                                <input type="numeric" className="form-control" onChange={handleChange} id="minQuantity" defaultValue={asset?.minQuantity} />
+                            </div>
                         </div>
                         <div className="col-md-6">
                             <div className="mb-3">
