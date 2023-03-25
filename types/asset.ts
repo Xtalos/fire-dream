@@ -11,6 +11,7 @@ type Asset = {
     platform: string
     platformRisk: number
     risk: number
+    minQuantity: number
     currency: string
     currencyRisk: number
     conversion: string

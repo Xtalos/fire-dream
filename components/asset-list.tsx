@@ -84,7 +84,11 @@ const AssetList = ({ assets, onSubmit, walletId, updateQuotes, assetsValues }: P
                             </li>
                             {assets.sort((a, b) => assetsValues.get(b.id).value - assetsValues.get(a.id).value).map(asset => {
                                 return (
-                                    <li className="list-group-item" key={asset.id}>
+                                    <li className={ asset.category !== 'liquidity' && 
+                                    Math.abs(parseFloat(formatValue(assetsValues.get(asset.id).value - assetsValues.get('total').value * asset.targetRatio))) > (asset.minQuantity ?? asset.lastValue*1.1) 
+                                    ? (parseFloat(formatValue(assetsValues.get(asset.id).value - assetsValues.get('total').value * asset.targetRatio)) > 0
+                                    ? "list-group-item list-group-item-rebalance-down" : "list-group-item list-group-item-rebalance-up") 
+                                    : "list-group-item" } key={asset.id}>
                                         <div className="row">
                                             <div onClick={() => setAssetTicker(asset)} role="button" className="col-sm-2 p-2 p-lg-2 text-center d-flex flex-column"><div>{asset.name}</div><small>{asset.platform}</small></div>
                                             <div className="col-sm-1 p-2 p-lg-2 text-center align-self-center"><div className="d-sm-none">Risk</div> {formatRisk(assetsValues.get(asset.id).globalRisk)}</div>
