@@ -25,14 +25,14 @@ export default async function handler(
   const xApiKey = config?.yahooFinanceApiKey;
 
   const chunkPromises = symbols.map(symbol => {
-    return axios.get(`https://finance.yahoo.com/quote/${symbol}?p=${symbol}&.tsrc=fin-srch`, {
+    return axios.get(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?region=US&lang=en-US&includePrePost=false&interval=2m&useYfid=true&range=1d&corsDomain=finance.yahoo.com&.tsrc=finance`, {
       headers: {
-        'x-api-key': `${xApiKey}`
+        //'accept': 'text/html'
       }
     }).then(function (response) {
-
-      const result = response.data.match(/<fin-streamer(.*)data-test="qsp-price"(.*)value="([0-9.]+)"(.*)[0-9]<\/fin-streamer>/);
-      const price = result[3];
+      //const result = response.data.match(/<fin-streamer(.*)data-test="qsp-price"(.*)value="([0-9.]+)"(.*)[0-9]<\/fin-streamer>/);
+      const result = response.data.chart.result[0]?.meta.regularMarketPrice
+      const price = result;
       //console.log(price);
 
       const afs = assets.filter(asset => asset.symbol == symbol);
@@ -46,8 +46,9 @@ export default async function handler(
         });
       });
     }).catch(function (error) {
+      console.log(symbol)
       console.error(error);
-      res.status(403).json({ error });
+      res.status(500).json({ error });
       return;
     });
   });
