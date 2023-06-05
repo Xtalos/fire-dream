@@ -71,8 +71,8 @@ const Home = (props: ServerProps) => {
     <>
       <Head>
         <title>{process.env.APP_NAME}</title>
-        <meta name="description" content="Next.js firebase todos app" />
-        <link rel="icon" href="/favicon.ico" />
+        <meta name="description" content="{process.env.APP_NAME}" />
+        <link rel="icon" href="/firedream-logo.svg" />
       </Head>
       <FireDreamContainer wallets={wallets}>
         <WalletList wallets={wallets} updateQuotes={updateQuotes} />
