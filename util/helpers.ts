@@ -101,3 +101,7 @@ export const formatDate = (date?:number,format='YYYY-MM-DD') => date && moment.u
 export const isWalletRevisionExpired = (wallet:Wallet) => {
     return wallet.revisedOn === undefined || moment().diff(moment(wallet.revisedOn,'X'),'days') > (parseInt(wallet.revisionFrequency+'') ?? 0);
 }
+
+export const getWalletAssetsArray = (wallet:Wallet,assets:Asset[]) => {
+    return assets.filter(asset => undefined !== Object.values(wallet.assets).find(wa => wa.id === asset.id));
+}
