@@ -27,14 +27,22 @@ const ConfigForm = ({ config, onSubmit }: Props) => {
                     <div className="row">
                         <div className="col-md-6">
                             <div className="mb-3">
-                                <label htmlFor="yahooFinanceApiKey" className="form-label">Yahoo Api Key</label>
-                                <input type="text" className="form-control" onChange={handleChange} id="yahooFinanceApiKey" defaultValue={config?.yahooFinanceApiKey} />
+                                <label htmlFor="chartPeriodMonths" className="form-label">Chart Period Months</label>
+                                <input type="text" className="form-control" onChange={handleChange} id="chartPeriodMonths" defaultValue={config?.chartPeriodMonths} />
                             </div>
                         </div>
                         <div className="col-md-6">
                             <div className="mb-3">
                                 <label htmlFor="revaluationTax" className="form-label">Benchmark Tax</label>
                                 <input type="number" className="form-control" onChange={handleChange} id="revaluationTax" defaultValue={config?.revaluationTax} />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col-md-6">
+                            <div className="mb-3">
+                                <label htmlFor="officialStartDate" className="form-label">Investiments Start Date</label>
+                                <input type="text" className="form-control" onChange={handleChange} id="officialStartDate" defaultValue={config?.officialStartDate} />
                             </div>
                         </div>
                     </div>
