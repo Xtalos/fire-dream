@@ -138,24 +138,26 @@ const calculateTimeSeriesValues = async (assets: Asset[], assetValues: AssetValu
 
   const timeTotalValues: any[] = [timeAxe, ['total'], ['invested'], ['benchmark']];
   const avMap = splitIntoSingleAssetValues(assetValues);
-  let startingValueRevalued: number, startingInvested: number;
+  let startingValue: number, startingInvested: number, valueRevalued: number;
+  const firstDate = timeAxe[1];
   timeAxe.slice(1).forEach((t, i) => {
     const singleDateValue = calculateSingleDateValues(t, assets, avMap, normalize);
     const timeTotalValue = parseFloat(formatValue(singleDateValue.get('total').value));
     const timeTotalInvested = parseFloat(formatValue(singleDateValue.get('total').invested));
     timeTotalValues[1].push(timeTotalValue);
     timeTotalValues[2].push(timeTotalInvested);
-    const dayToNow = moment().diff(t, 'days');
-    const revaluationFactor = Math.pow(1 + benchmarkTax / 100, dayToNow / 365);
+    const daySinceStart = moment(t).diff(firstDate, 'days');
+    const revaluationFactor = Math.pow(1 + benchmarkTax / 100, daySinceStart / 365);
+    console.log(revaluationFactor);
     if (i === 0) {
-      startingValueRevalued = (timeTotalValue > timeTotalInvested ? timeTotalValue : timeTotalInvested) * revaluationFactor;
+      startingValue = (timeTotalValue > timeTotalInvested ? timeTotalValue : timeTotalInvested);
       startingInvested = timeTotalInvested;
     }
     const deltaInvested = timeTotalInvested - startingInvested;
-    startingInvested = timeTotalInvested;
+    //startingInvested = timeTotalInvested;
     const revaluationValue = deltaInvested * revaluationFactor;
-    startingValueRevalued += revaluationValue
-    timeTotalValues[3].push(parseFloat(formatValue(startingValueRevalued)));
+    valueRevalued = startingValue * revaluationFactor + revaluationValue;
+    timeTotalValues[3].push(parseFloat(formatValue(valueRevalued)));
 
     assets.forEach(asset => {
       let categoryIdx = timeCategoryValues.findIndex(tav => tav[0] === asset.category);
