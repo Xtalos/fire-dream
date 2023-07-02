@@ -148,12 +148,12 @@ const calculateTimeSeriesValues = async (assets: Asset[], assetValues: AssetValu
     const dayToNow = moment().diff(t, 'days');
     const revaluationFactor = Math.pow(1 + benchmarkTax / 100, dayToNow / 365);
     if (i === 0) {
-      startingValueRevalued = timeTotalValue * revaluationFactor;
+      startingValueRevalued = (timeTotalValue > timeTotalInvested ? timeTotalValue : timeTotalInvested) * revaluationFactor;
       startingInvested = timeTotalInvested;
     }
     const deltaInvested = timeTotalInvested - startingInvested;
     startingInvested = timeTotalInvested;
-    const revaluationValue = (deltaInvested > 0 ? deltaInvested : 0) * revaluationFactor;
+    const revaluationValue = deltaInvested * revaluationFactor;
     startingValueRevalued += revaluationValue
     timeTotalValues[3].push(parseFloat(formatValue(startingValueRevalued)));
 

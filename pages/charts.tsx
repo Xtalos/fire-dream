@@ -52,6 +52,7 @@ const Charts = (props: ServerProps) => {
     }, []);
     const a = await Promise.all(asstPromises);
 
+    await getConfig();
     setAssets(a);
     setWallets(w);
     await filterWallets(w, a);
@@ -60,7 +61,7 @@ const Charts = (props: ServerProps) => {
   const updateTimeValues = async (a: Asset[], forceUpdate = false, normalize = false) => {
     if (forceUpdate) (document.getElementById('filterWallet') as HTMLSelectElement).value = 'all';
     let cfg = config || await getConfig();
-    let tv = await getOrUpdateCachedValues(props.authUserId, a, 6, forceUpdate, normalize, cfg.revaluationTax || 0);
+    let tv = await getOrUpdateCachedValues(props.authUserId, a, cfg.chartPeriodMonths, forceUpdate, normalize, cfg.revaluationTax || 0);
     tv = {
       timeAssetValues: checkTimeValuesConsistence(tv.timeAssetValues) ? tv.timeAssetValues : [],
       timeCategoryValues: checkTimeValuesConsistence(tv.timeCategoryValues) ? tv.timeCategoryValues : [],
@@ -148,7 +149,7 @@ const Charts = (props: ServerProps) => {
             />
           </div>
         </div>
-        <ChartsPanel wallets={selectedWallets} assets={selectedAssets} timeValues={timeValues} />
+        <ChartsPanel wallets={selectedWallets} assets={selectedAssets} timeValues={timeValues} config={config as Config}/>
         <div className="row mt-5 mb-5 pt-5 pb-5">
           <div className="col-12 text-center">
             <a className="btn btn-lg btn-dark" role="button" onClick={async () => await updateTimeValues(assets, true)}>Update</a>
