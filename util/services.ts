@@ -138,24 +138,25 @@ const calculateTimeSeriesValues = async (assets: Asset[], assetValues: AssetValu
 
   const timeTotalValues: any[] = [timeAxe, ['total'], ['invested'], ['benchmark']];
   const avMap = splitIntoSingleAssetValues(assetValues);
-  let startingValueRevalued: number, startingInvested: number;
+  let startingInvested: number, valueRevalued: number;
+  let startingDate = timeAxe[1];
   timeAxe.slice(1).forEach((t, i) => {
     const singleDateValue = calculateSingleDateValues(t, assets, avMap, normalize);
     const timeTotalValue = parseFloat(formatValue(singleDateValue.get('total').value));
     const timeTotalInvested = parseFloat(formatValue(singleDateValue.get('total').invested));
     timeTotalValues[1].push(timeTotalValue);
     timeTotalValues[2].push(timeTotalInvested);
-    const dayToNow = moment().diff(t, 'days');
-    const revaluationFactor = Math.pow(1 + benchmarkTax / 100, dayToNow / 365);
+    const daySinceStart = moment(t).diff(startingDate, 'days');
+    startingDate = t;
+    const revaluationFactor = Math.pow(1 + benchmarkTax / 100, daySinceStart / 365);//calculate composite interests since the previous time
     if (i === 0) {
-      startingValueRevalued = timeTotalValue * revaluationFactor;
+      valueRevalued = (timeTotalValue > timeTotalInvested ? timeTotalValue : timeTotalInvested);
       startingInvested = timeTotalInvested;
     }
     const deltaInvested = timeTotalInvested - startingInvested;
     startingInvested = timeTotalInvested;
-    const revaluationValue = (deltaInvested > 0 ? deltaInvested : 0) * revaluationFactor;
-    startingValueRevalued += revaluationValue
-    timeTotalValues[3].push(parseFloat(formatValue(startingValueRevalued)));
+    valueRevalued = valueRevalued * revaluationFactor + deltaInvested;//store the value revaluated for intest rate + delta invested
+    timeTotalValues[3].push(parseFloat(formatValue(valueRevalued)));
 
     assets.forEach(asset => {
       let categoryIdx = timeCategoryValues.findIndex(tav => tav[0] === asset.category);

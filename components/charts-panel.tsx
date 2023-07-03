@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import moment, { months } from 'moment';
 import React from 'react';
-import { Asset, Wallet } from '../types';
+import { Asset, Config, Wallet } from '../types';
 import { formatRatio, formatValue, toPieData } from '../util/helpers';
 import Pie from './charts/pie';
 import TimeSeriesChart from './charts/time-series-chart';
@@ -10,17 +10,18 @@ type Props = {
     wallets: Wallet[]
     assets: Asset[]
     timeValues: any
+    config: Config
 }
 
-const ChartsPanel = ({ wallets, assets, timeValues }: Props) => {
+const ChartsPanel = ({ wallets, assets, timeValues, config }: Props) => {
 
     const getMonthlyMobileAvgInvested = ({timeTotalValues}:any) => {
         const invested = timeTotalValues[2] as any[];
-        return formatValue((parseFloat(''+invested[invested.length-1]) - parseFloat(''+invested[1]))/6);
+        return formatValue((parseFloat(''+invested[invested.length-1]) - parseFloat(''+invested[1]))/config.chartPeriodMonths);
     }
     const getMonthlyAvgInvested = ({timeTotalValues}:any) => {
         const invested = timeTotalValues[2] as any[];
-        return formatValue(30*parseFloat(''+invested[invested.length-1]) / moment().diff('2021-10-01', 'days'));
+        return formatValue(30*parseFloat(''+invested[invested.length-1]) / moment().diff(config.officialStartDate, 'days'));
     }
 
     return (

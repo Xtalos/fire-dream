@@ -1,14 +1,15 @@
 import Head from 'next/head';
-import { AssetsValuesFilter, AssetsValuesFormList, FireDreamContainer } from '../components';
+import { AssetsValuesFilter, AssetsValuesFormList, AssetWalletTransferForm, FireDreamContainer } from '../components';
 import styles from '../styles/Home.module.css'
 import React, { useEffect, useState } from 'react';
-import { Asset, AssetValue } from '../types';
+import { Asset, AssetValue, Wallet } from '../types';
 import { getServerSidePropsWithAuth, ServerProps } from '../util/get-server-side-props-with-auth';
 import { createNewAssetValue, deleteFromDB, getAssetsValuesByPeriod, getWalletsAndAssets, saveOnDB } from '../util/services';
 import Swal from 'sweetalert2';
 import { Modal } from 'react-bootstrap';
 import AssetValueTransferForm from '../components/asset-value-transfer-form';
 import { useRouter } from 'next/router';
+import { doc } from 'firebase/firestore';
 
 
 export const getServerSideProps = getServerSidePropsWithAuth;
@@ -16,8 +17,10 @@ export const getServerSideProps = getServerSidePropsWithAuth;
 const AssetsValues = (props: ServerProps) => {
   const router = useRouter();
   const [showTransferForm, setShowTransferForm] = useState<boolean>(false);
+  const [showWalletChangeForm, setShowWalletChangeForm] = useState<boolean>(false);
   const [assetsValues, setAssetsValues] = useState<AssetValue[]>([]);
   const [assets, setAssets] = useState<Asset[]>([]);
+  const [wallets, setWallets] = useState<Wallet[]>([]);
   const [filter, setFilter] = useState<{ start?: string, end?: string }>({});
 
   const deleteAssetValue = async (id: string) => {
@@ -62,9 +65,28 @@ const AssetsValues = (props: ServerProps) => {
     }
   }
 
+  const moveAsset = async (fromWallet: Wallet, toWallet: Wallet) => {
+    try {
+      //await createNewAssetValue(fromAssetValue);
+      //await createNewAssetValue(toAssetValue);
+      await saveOnDB('wallets',fromWallet);
+      await saveOnDB('wallets',toWallet);
+      console.log(fromWallet,toWallet);
+      Swal.fire(
+        'Good job!',
+        'Asset moved successfully!',
+        'success'
+      );
+      router.reload();
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   const getAssets = async () => {
-    const { assets: asts } = await getWalletsAndAssets(props.authUserId);
+    const { wallets: wallts, assets: asts } = await getWalletsAndAssets(props.authUserId);
     setAssets(asts);
+    setWallets(wallts);
   }
 
   const getValues = async (fltr: { start: string, end: string }) => {
@@ -89,7 +111,14 @@ const AssetsValues = (props: ServerProps) => {
       <FireDreamContainer>
         <div className="row">
           <div className="col-12 text-center">
-            <button type="submit" onClick={() => setShowTransferForm(true)} className="text-center mb-4 btn btn-lg btn-dark">Transfer Values</button>
+            <div className="row">
+              <div className="col-md-6">
+                <button type="submit" onClick={() => setShowTransferForm(true)} className="mb-4 btn btn-lg btn-dark">Transfer Values</button>
+              </div>
+              <div className="col-md-6">
+                <button type="submit" onClick={() => setShowWalletChangeForm(true)} className="mb-4 btn btn-lg btn-dark">Change Wallet</button>
+              </div>
+            </div>
           </div>
         </div>
         <AssetsValuesFilter filter={filter} onFilter={getValues} />
@@ -101,6 +130,16 @@ const AssetsValues = (props: ServerProps) => {
             </Modal.Header>
             <Modal.Body>
               <AssetValueTransferForm assets={assets} onSubmit={transferValues} />
+            </Modal.Body>
+          </Modal>}
+
+        {showWalletChangeForm &&
+          <Modal show={showWalletChangeForm} onHide={() => setShowWalletChangeForm(false)}>
+            <Modal.Header closeButton>
+              <Modal.Title>Move Asset</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <AssetWalletTransferForm assets={assets} wallets={wallets} onSubmit={moveAsset} />
             </Modal.Body>
           </Modal>}
       </FireDreamContainer>
