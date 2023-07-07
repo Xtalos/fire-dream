@@ -49,9 +49,9 @@ const AssetList = ({ assets, onSubmit, walletId, updateQuotes, assetsValues }: P
                         </div>
                     }
                     <div className={assets.length ? "col-6 d-flex flex-row-reverse" : "col-12 mt-5 text-center"} >
-                        <Link href={"/asset/new?wallet=" + walletId}>
-                            <a className="mb-5 btn btn-lg btn-dark" >Create Asset</a>
-                        </Link>
+                        <a className="mb-5 btn btn-lg btn-dark" href={"/asset/new?wallet=" + walletId}>
+                            Create Asset
+                        </a>
                     </div>
                 </div>
                 {parseInt(assetsValues.get('total').targetRatio + '') != 1 &&
@@ -99,8 +99,7 @@ const AssetList = ({ assets, onSubmit, walletId, updateQuotes, assetsValues }: P
                                             <div className="col-sm-3 align-self-center">
                                                 <div className="row">
                                                     <div className="col text-center">
-                                                        <Link href={"/asset/" + asset.id + "?wallet=" + walletId}>
-                                                            <a>
+                                                        <a href={"/asset/" + asset.id + "?wallet=" + walletId}>
                                                                 <img
                                                                     title="edit"
                                                                     alt="edit"
@@ -109,8 +108,7 @@ const AssetList = ({ assets, onSubmit, walletId, updateQuotes, assetsValues }: P
                                                                     height="30"
                                                                     className="m-2"
                                                                 />
-                                                            </a>
-                                                        </Link>
+                                                        </a>
                                                     </div>
                                                     <div className="col text-center">
                                                         <a role="button" onClick={() => changeAssetValueHandler(asset)}>

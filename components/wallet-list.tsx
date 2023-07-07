@@ -33,9 +33,9 @@ const WalletList = ({ wallets, updateQuotes }: Props) => {
                         </div>
                     }
                     <div className={wallets.length ? "col-6 d-flex flex-row-reverse" : "col-12 text-center"} >
-                        <Link href={"/wallet/new"}>
-                            <a className="mb-5 btn btn-lg btn-dark" >Create Wallet</a>
-                        </Link>
+                        <a className="mb-5 btn btn-lg btn-dark" href={"/wallet/new"}>
+                            Create Wallet
+                        </a>
                     </div>
                 </div>
                 {totalTargetRatio != 1 &&
@@ -70,8 +70,7 @@ const WalletList = ({ wallets, updateQuotes }: Props) => {
                                             <div className="col-sm-3">
                                                 <div className="row">
                                                     <div className="col text-center">
-                                                        <Link href={"/wallet/" + wallet.id}>
-                                                            <a>
+                                                        <a href={"/wallet/" + wallet.id}>
                                                                 <img
                                                                     alt=""
                                                                     title="edit assets"
@@ -80,12 +79,10 @@ const WalletList = ({ wallets, updateQuotes }: Props) => {
                                                                     height="30"
                                                                     className="m-2"
                                                                 />
-                                                            </a>
-                                                        </Link>
+                                                        </a>
                                                     </div>
                                                     <div className="col text-center">
-                                                        <Link href={"/wallet/" + wallet.id + "?edit=1"}>
-                                                            <a>
+                                                        <a href={"/wallet/" + wallet.id + "?edit=1"}>
                                                                 <img
                                                                     alt=""
                                                                     title="edit wallet"
@@ -94,8 +91,7 @@ const WalletList = ({ wallets, updateQuotes }: Props) => {
                                                                     height="30"
                                                                     className="m-2"
                                                                 />
-                                                            </a>
-                                                        </Link>
+                                                        </a>
                                                     </div>
                                                 </div>
                                             </div>
