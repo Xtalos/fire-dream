@@ -9,6 +9,7 @@ import { getServerSidePropsWithAuth, ServerProps } from '../util/get-server-side
 import { doc } from 'firebase/firestore';
 import ConfigForm from '../components/config-form';
 import Swal from 'sweetalert2';
+import { getUpdateQuotesUrl } from '../util/services';
 
 
 export const getServerSideProps = getServerSidePropsWithAuth;
@@ -16,12 +17,15 @@ export const getServerSideProps = getServerSidePropsWithAuth;
 const Config = (props: ServerProps) => {
   const configRef = doc(firestore, 'config/' + props.authUserId);
   const [config, setConfig] = useState<Config>();
+  const [updateQuotesUrl, setUpdateQuotesUrl] = useState<string>();
 
   const getConfig = async () => {
     const result = await getDoc(configRef);
 
     const c = result.data() as Config;
+    const qUrl = await getUpdateQuotesUrl(props.authUserId);
     setConfig(c);
+    setUpdateQuotesUrl(qUrl);
   };
 
   useEffect(() => {
@@ -50,7 +54,7 @@ const Config = (props: ServerProps) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <FireDreamContainer>
-        <ConfigForm config={config} onSubmit={saveConfig}/>
+        <ConfigForm config={config} updateQuotesUrl={updateQuotesUrl} onSubmit={saveConfig}/>
       </FireDreamContainer>
       <footer className={styles.footer}>
         <a
