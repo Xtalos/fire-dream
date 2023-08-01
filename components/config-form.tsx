@@ -4,9 +4,10 @@ import { Config } from '../types';
 type Props = {
     config?: Config
     onSubmit: Function
+    updateQuotesUrl?: string
 }
 
-const ConfigForm = ({ config, onSubmit }: Props) => {
+const ConfigForm = ({ config, onSubmit, updateQuotesUrl }: Props) => {
     let configModified = config as Config;
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -18,6 +19,13 @@ const ConfigForm = ({ config, onSubmit }: Props) => {
         const id = event.target.id;
         const value = event.target.value;
         configModified = { ...configModified, [id]: value };
+    }
+
+    const copyUrl = () => {
+        console.log('copied');
+        if(updateQuotesUrl) {
+            navigator.clipboard.writeText(updateQuotesUrl);
+        }
     }
 
     return (
@@ -43,6 +51,12 @@ const ConfigForm = ({ config, onSubmit }: Props) => {
                             <div className="mb-3">
                                 <label htmlFor="officialStartDate" className="form-label">Investiments Start Date</label>
                                 <input type="text" className="form-control" onChange={handleChange} id="officialStartDate" defaultValue={config?.officialStartDate} />
+                            </div>
+                        </div>
+                        <div className="col-md-6">
+                            <div className="mb-3">
+                                <label htmlFor="updateQuotesUrl" className="form-label">Update Quotes Url</label>
+                                <input type="text" className="form-control" role="button" onClick={copyUrl} readOnly id="updateQuotesUrl" defaultValue={updateQuotesUrl}/>
                             </div>
                         </div>
                     </div>
