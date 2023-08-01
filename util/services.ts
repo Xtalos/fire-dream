@@ -7,9 +7,9 @@ import moment from 'moment';
 import AssetValueCache from '../types/asset-value-cache';
 
 
-export const updateQuotes = async (assets: Asset[], config?: Config, host?: string) => {
+export const updateQuotes = async (assets: Asset[], config?: Config) => {
   const batch = writeBatch(firestore);
-  const response = await axios.post((host ?? '') + '/api/yahoofinance-parser-quote', { assets, config });
+  const response = await axios.post((`${process.env.VERCEL_URL || 'http://localhost:3000'}`) + '/api/yahoofinance-parser-quote', { assets, config });
   const assetValuesCollection = collection(firestore, 'assetsValues');
 
   const quotes = response.status === 200 ? response.data.values as AssetValue[] : [];
@@ -25,14 +25,14 @@ export const updateQuotes = async (assets: Asset[], config?: Config, host?: stri
   return await Promise.all(assetPromises);
 }
 
-export const updateWalletsQuotes = async (wallets: Wallet[], config?: Config, host?: string) => {
+export const updateWalletsQuotes = async (wallets: Wallet[], config?: Config) => {
   const batch = writeBatch(firestore);
   const feedBatch = (wallet: Wallet) => {
     const results = Object.values(wallet.assets).map(assetRef => {
       return getDoc(assetRef).then(assetResult => ({ ...assetResult.data(), id: assetRef.id } as Asset));
     });
     return Promise.all(results)
-      .then(assets => updateQuotes(assets, config, host))
+      .then(assets => updateQuotes(assets, config))
       .then(assets => {
         const assetsValues = getCalculatedValues(assets);
         const walletRef = doc(firestore, 'wallets/' + wallet.id);
