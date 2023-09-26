@@ -39,7 +39,8 @@ export const updateWalletsQuotes = async (wallets: Wallet[], config?: Config) =>
         const updateWallet = {
           invested: assetsValues.get('total').invested,
           lastValue: assetsValues.get('total').value,
-          risk: assetsValues.get('total').globalRisk
+          risk: assetsValues.get('total').globalRisk,
+          startedOn: wallet.startedOn ?? parseInt(moment().format('X'))
         };
         batch.update(walletRef, updateWallet);
         return {

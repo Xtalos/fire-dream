@@ -7,6 +7,7 @@ type Wallet = {
     targetRatio: number
     revisionFrequency: number
     revisedOn: number
+    startedOn: number
     lastValue: number
     risk: number
     owner: string
