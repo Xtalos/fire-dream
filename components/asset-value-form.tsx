@@ -22,11 +22,13 @@ const AssetValueForm = ({ assetValue, onSubmit }: Props) => {
         assetValue = { ...assetValue, [id]: value };
     }
 
-    const formatDate = (date: number) => date && moment.unix(date).format('YYYY-MM-DD');
+    const formatDate = (date: number) => date ? moment.unix(date).format('YYYY-MM-DD') : moment().format('YYYY-MM-DD');
 
     const handleChangeDate = (event: React.ChangeEvent<HTMLInputElement>) => {
         const id = event.target.id;
-        const value = parseInt(moment().format('X'));
+        const momentValue = moment(event.target.value);
+        if (!momentValue.isValid()) return;
+        const value = parseInt(momentValue.format('X'));
         assetValue = { ...assetValue, [id]: value };
     }
 

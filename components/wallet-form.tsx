@@ -25,6 +25,13 @@ const WalletForm = ({ wallet, onSubmit }: Props) => {
         walletModified = { ...walletModified, revisedOn: value };
     }
 
+    const setStartedOn = (event: React.MouseEvent<HTMLInputElement>) => {
+        const value = parseInt(moment().format('X'));
+        const input = document.getElementById('startedOn') as HTMLInputElement;
+        input.value = moment().format('YYYY-MM-DD');
+        walletModified = { ...walletModified, startedOn: value };
+    }
+
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const id = event.target.id;
         const value = event.target.value;
@@ -88,6 +95,17 @@ const WalletForm = ({ wallet, onSubmit }: Props) => {
                                 <InputGroup>
                                     <FormControl type="text" onChange={handleChangeDate} id="revisedOn" defaultValue={formatDate(wallet?.revisedOn)} />
                                     <InputGroup.Text role="button" onClick={setRevisedOn}>Revised</InputGroup.Text>
+                                </InputGroup>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col-md-6">
+                            <div className="mb-3">
+                                <label htmlFor="startedOn" className="form-label">Started On</label>
+                                <InputGroup>
+                                    <FormControl type="text" onChange={handleChangeDate} id="startedOn" defaultValue={formatDate(wallet?.startedOn)} />
+                                    <InputGroup.Text role="button" onClick={setStartedOn}>Set Start Date</InputGroup.Text>
                                 </InputGroup>
                             </div>
                         </div>

@@ -14,14 +14,17 @@ type Props = {
 }
 
 const ChartsPanel = ({ wallets, assets, timeValues, config }: Props) => {
+    const oldestStartDate = wallets.reduce((p,c)=> {
+        return moment.unix(c.startedOn).isBefore(moment.unix(p)) ? c.startedOn : p;
+    },parseInt(moment().format('X')));
 
     const getMonthlyMobileAvgInvested = ({timeTotalValues}:any) => {
         const invested = timeTotalValues[2] as any[];
-        return formatValue((parseFloat(''+invested[invested.length-1]) - parseFloat(''+invested[1]))/config.chartPeriodMonths);
+        return formatValue((parseFloat(''+invested[invested.length-1]) - parseFloat(''+invested[1]))/Math.min(config.chartPeriodMonths,moment().diff(moment.unix(oldestStartDate), 'months')));
     }
     const getMonthlyAvgInvested = ({timeTotalValues}:any) => {
         const invested = timeTotalValues[2] as any[];
-        return formatValue(30*parseFloat(''+invested[invested.length-1]) / moment().diff(config.officialStartDate, 'days'));
+        return formatValue(30*parseFloat(''+invested[invested.length-1]) / moment().diff(moment.unix(oldestStartDate), 'days'));
     }
 
     return (
