@@ -9,5 +9,5 @@ export default function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  res.status(200).json({ url: process.env.NEXT_PUBLIC_VERCEL_URL })
+  res.status(200).json({ url: process.env.VERCEL_URL })
 }
