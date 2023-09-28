@@ -61,6 +61,7 @@ const Home = (props: ServerProps) => {
         'success'
       );
     } catch(e) {
+      console.error(e);
       return Swal.fire('Error!',
       'Failed to update assets quotes',
       'error');
