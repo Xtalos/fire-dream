@@ -9,8 +9,8 @@ import AssetValueCache from '../types/asset-value-cache';
 
 export const updateQuotes = async (assets: Asset[], config?: Config) => {
   const batch = writeBatch(firestore);
-  console.log('test url: ' + process.env.NEXT_PUBLIC_VERCEL_URL);
-  const response = await axios.post('/api/yahoofinance-parser-quote', { assets, config });
+  const url = process.env.NEXT_PUBLIC_VERCEL_URL ? 'https://'+process.env.NEXT_PUBLIC_VERCEL_URL : '';
+  const response = await axios.post(url+'/api/yahoofinance-parser-quote', { assets, config });
   const assetValuesCollection = collection(firestore, 'assetsValues');
 
   const quotes = response.status === 200 ? response.data.values as AssetValue[] : [];
