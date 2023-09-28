@@ -7,10 +7,11 @@ import { useEffect, useState } from 'react';
 import { Config, Wallet } from '../types';
 import { getServerSidePropsWithAuth, ServerProps } from '../util/get-server-side-props-with-auth';
 import WalletList from '../components/wallet-list';
-import { updateWalletsQuotes } from '../util/services';
+import { getUpdateQuotesUrl, updateWalletsQuotes } from '../util/services';
 import { useRouter } from 'next/router';
 import { doc, getDoc } from 'firebase/firestore';
 import Swal from 'sweetalert2';
+import axios from 'axios';
 
 
 const walletsCollection = collection(firestore, 'wallets');
@@ -53,8 +54,9 @@ const Home = (props: ServerProps) => {
 
   const updateQuotes = async (wallts: Wallet[]) => {
     try {
-      const updatedWallets = await updateWalletsQuotes(wallts,config);
-      setWallets(updatedWallets);
+      const qUrl = await getUpdateQuotesUrl(props.authUserId);
+      await axios.get(qUrl);
+      await getWallets();
       Swal.fire(
         'Good job!',
         'Assets quotes updated successfully!',

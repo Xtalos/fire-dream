@@ -7,9 +7,10 @@ import { Asset, AssetValue, Config, Wallet } from '../../types';
 import Head from "next/head";
 import { getServerSidePropsWithAuth, ServerProps } from "../../util/get-server-side-props-with-auth";
 import WalletForm from "../../components/wallet-form";
-import { updateQuotes } from '../../util/services';
+import { getUpdateQuotesUrl, updateQuotes } from '../../util/services';
 import { getCalculatedValues } from '../../util/helpers';
 import Swal from 'sweetalert2';
+import axios from 'axios';
 
 export const getServerSideProps = getServerSidePropsWithAuth;
 
@@ -90,10 +91,12 @@ const WalletPage = (props: ServerProps) => {
 
   const updateAssetsQuotes = async (assets: Asset[]) => {
     try {
-      const assetsUpdated = await updateQuotes(assets, config);
-      assetsValues = getCalculatedValues(assetsUpdated);
+      const qUrl = await getUpdateQuotesUrl(props.authUserId);
+      await axios.get(qUrl);
+      await getWallet();
+      assetsValues = getCalculatedValues(assets);
       if (wallet) await saveWallet(wallet);
-      setAssets(assetsUpdated);
+      setAssets(assets);
       Swal.fire(
         'Good job!',
         'Assets quotes updated successfully!',
