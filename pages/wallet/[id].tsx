@@ -92,6 +92,7 @@ const WalletPage = (props: ServerProps) => {
   const updateAssetsQuotes = async (assets: Asset[]) => {
     try {
       const qUrl = await getUpdateQuotesUrl(props.authUserId);
+      console.log(qUrl);
       await axios.get(qUrl);
       await getWallet();
       assetsValues = getCalculatedValues(assets);
