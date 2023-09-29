@@ -55,6 +55,7 @@ const Home = (props: ServerProps) => {
   const updateQuotes = async (wallts: Wallet[]) => {
     try {
       const qUrl = await getUpdateQuotesUrl(props.authUserId);
+      console.log(qUrl);
       await axios.get(qUrl);
       await getWallets();
       Swal.fire(
