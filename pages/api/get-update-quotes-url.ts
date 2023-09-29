@@ -19,7 +19,8 @@ export default function handler(
 ) {
   const uid = req.query.uid as string;
   const host = req.headers.host as string;
+  const http = req.headers.host?.includes('localhost') ? 'http://' : 'https://';
   const url = getUpdateQuotesUrl(uid);
 
-  res.status(200).json({ url: host + url })
+  res.status(200).json({ url: http + host + url })
 }
