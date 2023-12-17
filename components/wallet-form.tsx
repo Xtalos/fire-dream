@@ -1,5 +1,5 @@
 import moment from 'moment';
-import React from 'react';
+import React, { ChangeEventHandler } from 'react';
 import { InputGroup, FormControl, Form } from 'react-bootstrap';
 import { Wallet } from '../types';
 import asset from '../types/asset';
@@ -32,7 +32,7 @@ const WalletForm = ({ wallet, onSubmit }: Props) => {
         walletModified = { ...walletModified, startedOn: value };
     }
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement|HTMLSelectElement>) => {
         const id = event.target.id;
         const value = event.target.value;
         walletModified = { ...walletModified, [id]: value };
@@ -77,8 +77,13 @@ const WalletForm = ({ wallet, onSubmit }: Props) => {
                         </div>
                         <div className="col-md-6">
                             <div className="mb-3">
-                                <label htmlFor="label" className="form-label">Target Ratio</label>
-                                <input type="numeric" className="form-control" onChange={handleChange} id="targetRatio" defaultValue={wallet?.targetRatio} />
+                                <label htmlFor="label" className="form-label">Type</label>
+                                <select required className="form-control" onChange={handleChange} id="type" >
+                                    <option></option>
+                                    <option selected={wallet?.type=='expense'} value='expense'>expense</option>
+                                    <option selected={wallet?.type=='account'} value='account'>account</option>
+                                    <option selected={wallet?.type=='investment'} value='investment'>investment</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -91,11 +96,8 @@ const WalletForm = ({ wallet, onSubmit }: Props) => {
                         </div>
                         <div className="col-md-6">
                             <div className="mb-3">
-                                <label htmlFor="revisedOn" className="form-label">Last Revised On</label>
-                                <InputGroup>
-                                    <FormControl type="text" onChange={handleChangeDate} id="revisedOn" defaultValue={formatDate(wallet?.revisedOn)} />
-                                    <InputGroup.Text role="button" onClick={setRevisedOn}>Revised</InputGroup.Text>
-                                </InputGroup>
+                                <label htmlFor="label" className="form-label">Target Ratio</label>
+                                <input type="numeric" className="form-control" onChange={handleChange} id="targetRatio" defaultValue={wallet?.targetRatio} />
                             </div>
                         </div>
                     </div>
@@ -106,6 +108,15 @@ const WalletForm = ({ wallet, onSubmit }: Props) => {
                                 <InputGroup>
                                     <FormControl type="text" onChange={handleChangeDate} id="startedOn" defaultValue={formatDate(wallet?.startedOn)} />
                                     <InputGroup.Text role="button" onClick={setStartedOn}>Set Start Date</InputGroup.Text>
+                                </InputGroup>
+                            </div>
+                        </div>
+                        <div className="col-md-6">
+                            <div className="mb-3">
+                                <label htmlFor="revisedOn" className="form-label">Last Revised On</label>
+                                <InputGroup>
+                                    <FormControl type="text" onChange={handleChangeDate} id="revisedOn" defaultValue={formatDate(wallet?.revisedOn)} />
+                                    <InputGroup.Text role="button" onClick={setRevisedOn}>Revised</InputGroup.Text>
                                 </InputGroup>
                             </div>
                         </div>

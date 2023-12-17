@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Asset, AssetValue, Config, Wallet } from '../types';
+import { Asset, AssetValue, Config, Expense, Wallet } from '../types';
 import { writeBatch, doc, collection, getDoc, DocumentData, getDocsFromServer, orderBy, query, QueryDocumentSnapshot, where, setDoc, deleteDoc, getDocs, addDoc, updateDoc } from 'firebase/firestore';
 import { firestore } from './firebase-client';
 import { formatValue, getCalculatedValues } from './helpers';
@@ -10,8 +10,8 @@ import AssetValueCache from '../types/asset-value-cache';
 export const updateQuotes = async (assets: Asset[], config?: Config) => {
   const batch = writeBatch(firestore);
   const vercelUrl = process.env.VERCEL_URL ?? process.env.NEXT_PUBLIC_VERCEL_URL;
-  const url = vercelUrl?.includes('localhost') ? 'http://'+vercelUrl : 'https://'+vercelUrl;
-  const response = await axios.post(url+'/api/yahoofinance-parser-quote', { assets, config });
+  const url = vercelUrl?.includes('localhost') ? 'http://' + vercelUrl : 'https://' + vercelUrl;
+  const response = await axios.post(url + '/api/yahoofinance-parser-quote', { assets, config });
   const assetValuesCollection = collection(firestore, 'assetsValues');
 
   const quotes = response.status === 200 ? response.data.values as AssetValue[] : [];
@@ -127,7 +127,7 @@ const getAssetsValues = async (assets: Asset[], months: number) => {
 
 const calculateTimeSeriesValues = async (assets: Asset[], assetValues: AssetValue[], months: number, normalize = false, benchmarkTax = 0) => {
   const timeAxe = getTimesAxe(months);
-  const firstAssetsDate = moment(assetValues[0]?.createdOn,'X').format('YYYY-MM-DD');
+  const firstAssetsDate = moment(assetValues[0]?.createdOn, 'X').format('YYYY-MM-DD');
   timeAxe[1] = timeAxe[1] != firstAssetsDate ? firstAssetsDate : timeAxe[1];
   const timeAssetValues = assets.reduce((acc: any[], asset: Asset) => {
     const alreadyExists = acc.find(a => a[0] === asset.name);
@@ -244,13 +244,39 @@ export const getAssetsValuesByPeriod = async (assets: Asset[], start: string, en
   return assetValues;
 }
 
+export const getExpensesByPeriod = async (owner: string, start: string, end: string) => {
+  const startDate = moment(start, 'YYYY-MM-DD');
+  const endDate = moment(end, 'YYYY-MM-DD').add(1, 'day');
+  if (!startDate.isValid() || !endDate.isValid()) {
+    return [];
+  }
+  const ExpenseCollection = collection(firestore, 'expenses');
+  const startDateTimestamp = parseInt(startDate.format('X'));
+  const endDateTimestamp = parseInt(endDate.format('X'));
+  const expensesQuery = query(ExpenseCollection,
+    where('owner', '==', owner),
+    where('createdOn', '>=', startDateTimestamp),
+    where('createdOn', '<=', endDateTimestamp),
+    orderBy("createdOn"));
+  const querySnapshot = await getDocs(expensesQuery);
+  const result: QueryDocumentSnapshot<DocumentData>[] = [];
+  querySnapshot.forEach((snapshot) => {
+    result.push(snapshot);
+  });
+  const expenses = result.map(item => ({ ...item.data(), id: item.id } as Expense));
+
+  return expenses;
+}
+
 export const deleteFromDB = async (resourceName: string, id: string) => {
   return await deleteDoc(doc(firestore, resourceName, id));
 }
 
+//TODO: remove any type
 export const saveOnDB = async (resourceName: string, resource: any) => {
-  const resourceRef = doc(firestore, resourceName + (resource.id ? '/' + resource.id : ''));
-  return await setDoc(resourceRef, resource);
+  return resource.id ?
+    await setDoc(doc(firestore, resourceName + '/' + resource.id), resource) :
+    await addDoc(collection(firestore, resourceName), resource);
 }
 
 export const createNewAssetValue = async (av: AssetValue) => {
@@ -263,9 +289,19 @@ export const createNewAssetValue = async (av: AssetValue) => {
   });
 }
 
+export const bulkCreate = async <Type>(resourceName: string, resources: Type[]): Promise<void> => {
+  const batch = writeBatch(firestore);
+  const resourceCollection = collection(firestore, resourceName);
+  resources.forEach(resource => {
+    const assetValueRef = doc(resourceCollection);
+    batch.set(assetValueRef, resource);
+  });
+  await batch.commit();
+}
+
 export const getWalletsAndAssets = async (authUserId: string) => {
   const walletsCollection = collection(firestore, 'wallets');
-  const walletsQuery = query(walletsCollection, where('owner', '==', authUserId),where('active', '==', true));
+  const walletsQuery = query(walletsCollection, where('owner', '==', authUserId), where('active', '==', true));
   const querySnapshot = await getDocs(walletsQuery);
   const result: QueryDocumentSnapshot<DocumentData>[] = [];
   querySnapshot.forEach((snapshot: any) => {
@@ -286,7 +322,7 @@ export const getWalletsAndAssets = async (authUserId: string) => {
 
 
 export const getUpdateQuotesUrl = async (uid: string) => {
-  const response = await axios.get('/api/get-update-quotes-url?uid='+uid);
+  const response = await axios.get('/api/get-update-quotes-url?uid=' + uid);
 
   return response?.data?.url;
 }
