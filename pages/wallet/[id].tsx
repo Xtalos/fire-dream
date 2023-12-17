@@ -25,13 +25,8 @@ const WalletPage = (props: ServerProps) => {
   let assetsValues = getCalculatedValues(assets);
 
   const getWallet = async () => {
-    // construct a query to get up to 10 undone todos 
-    // get the todos
     const result = await getDoc(walletRef);
 
-    // map through todos adding them to an array
-
-    // set it to state
     const w = result.data() as Wallet;
     let asts: Asset[] = [];
     if (w.assets) {

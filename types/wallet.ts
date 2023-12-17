@@ -3,6 +3,7 @@ import { DocumentReference } from "@firebase/firestore";
 type Wallet = {
     id: string
     label: string
+    type: 'expense' | 'account' | 'investment'
     invested: number
     targetRatio: number
     revisionFrequency: number

@@ -9,7 +9,6 @@ import Swal from 'sweetalert2';
 import { Modal } from 'react-bootstrap';
 import AssetValueTransferForm from '../components/asset-value-transfer-form';
 import { useRouter } from 'next/router';
-import { doc } from 'firebase/firestore';
 
 
 export const getServerSideProps = getServerSidePropsWithAuth;
