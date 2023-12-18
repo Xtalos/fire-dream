@@ -93,7 +93,7 @@ export const getExpensesWithMonth = (expenses: Expense[]) => {
 
 export const toExpensePieData = (expenses: ExpenseWithMonth[], field: 'category' | 'label' | 'subcategory' | 'account' | 'month', valueField = 'value'): BasicData[] => {
     return expenses.reduce((acc: BasicData[], expense: ExpenseWithMonth) => {
-        const existingDataIdx = acc.findIndex(data => data.name === expense[field]);
+        const existingDataIdx = acc.findIndex(data => data.name.includes(expense[field]));
         const existingData = existingDataIdx >= 0 ? acc.splice(existingDataIdx, 1)[0] : null;
         return [...acc, {
             name: expense[field],
