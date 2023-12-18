@@ -70,6 +70,13 @@ const ExpenseList = ({ expenses, onSubmit, onBulkCreate, onDelete, owner, dateFi
         return category.length ? category : 'Miscellaneus';
     }
 
+    const getAccount = (expenses: Expense[]) => {
+        return expenses.map(expense => ({
+            ...expense,
+            account: expense.account
+        })) as ExpenseWithMonth[];
+    }
+
     const getCategory = (expenses: Expense[]) => {
         return expenses.map(expense => ({
             ...expense,
@@ -123,7 +130,7 @@ const ExpenseList = ({ expenses, onSubmit, onBulkCreate, onDelete, owner, dateFi
                 {!charts || expenses.length < 1 ? '' : <>
                     <div className="row mt-5 mb-5">
                         <div className="col-md-6">
-                            <Pie data={toExpensePieData(expenses as ExpenseWithMonth[], 'account')} graphId='expensesComposition' title='Expenses' format={(v: string) => '€' + formatValue(v)} />
+                            <Pie data={toExpensePieData(getAccount(expenses), 'account')} graphId='expensesComposition' title='Expenses' format={(v: string) => '€' + formatValue(v)} />
                         </div>
                         <div className="mt-5 mt-md-0 col-md-6">
                             <Pie data={toExpensePieData(getExpensesWithMonth(expenses), 'month')} graphId='expMonthComposition' title='Month' format={(v: string) => '€' + formatValue(v)} />
