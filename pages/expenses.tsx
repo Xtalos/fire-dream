@@ -12,8 +12,9 @@ import { useRouter } from 'next/router';
 import { doc, getDoc, orderBy } from 'firebase/firestore';
 import Swal from 'sweetalert2';
 import axios from 'axios';
-import ExpenseList, { DateFilter } from '../components/expense-list';
+import ExpenseList, { DateFilter, ParamFilter } from '../components/expense-list';
 import moment from 'moment';
+import { changeEmptyToMisc, getSubCategoryLabel } from '../util/helpers';
 
 const ExpenseCollection = collection(firestore, 'expenses');
 
@@ -23,6 +24,7 @@ const Home = (props: ServerProps) => {
   const router = useRouter();
   const configRef = doc(firestore, 'config/' + props.authUserId);
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [cachedExpenses, setCachedExpenses] = useState<Expense[]>([]);
   const [config, setConfig] = useState<Config>();
   const defaultDateFilter = {start:moment().subtract(1, 'month').format('YYYY-MM-DD'), end:moment().format('YYYY-MM-DD')};
   const [dateFilter, setDateFilter] = useState<DateFilter>(defaultDateFilter);
@@ -37,7 +39,19 @@ const Home = (props: ServerProps) => {
     let start = fltr.start;
     let end = fltr.end;
     const exp = await getExpensesByPeriod(props.authUserId, start, end);
-    setExpenses(exp);
+    const e = exp.map(e => ({...e,category:changeEmptyToMisc(e.category),subcategory:changeEmptyToMisc(e.subcategory)}));
+    setExpenses(e);
+    setCachedExpenses(e);
+  }
+
+  const filterExpenses = async (fltr: ParamFilter) => {
+    const expFiltered = cachedExpenses.filter(e => 
+      (fltr.account.length == 0 || fltr.account.includes(e.account)) &&
+      (fltr.category.length == 0 || fltr.category.includes(e.category)) &&
+      (fltr.subcategory.length == 0 || fltr.subcategory.includes(getSubCategoryLabel(e)))
+      );
+    setExpenses(expFiltered);
+
   }
 
   const saveExpense = async (expense: Expense) => {
@@ -112,7 +126,15 @@ const Home = (props: ServerProps) => {
         <link rel="icon" href="/firedream-logo.svg" />
       </Head>
       <FireDreamContainer>
-        <ExpenseList expenses={expenses} onSubmit={saveExpense} onBulkCreate={bulkSaveExpenses} onDelete={deleteExpense} onChangeDateFilter={setDateFilter} dateFilter={dateFilter} owner={props.authUserId} />
+        <ExpenseList expenses={expenses} 
+          cachedExpenses={cachedExpenses}
+          onSubmit={saveExpense} 
+          onBulkCreate={bulkSaveExpenses} 
+          onDelete={deleteExpense} 
+          onChangeDateFilter={setDateFilter} 
+          filterExpenses={filterExpenses}
+          dateFilter={dateFilter} 
+          owner={props.authUserId} />
       </FireDreamContainer>
       <footer className={styles.footer}>
         <a

@@ -93,7 +93,7 @@ export const getExpensesWithMonth = (expenses: Expense[]) => {
 
 export const toExpensePieData = (expenses: ExpenseWithMonth[], field: 'category' | 'label' | 'subcategory' | 'account' | 'month', valueField = 'value'): BasicData[] => {
     return expenses.reduce((acc: BasicData[], expense: ExpenseWithMonth) => {
-        const existingDataIdx = acc.findIndex(data => data.name.includes(expense[field]));
+        const existingDataIdx = acc.findIndex(data => data.name.trim().includes(expense[field].trim()));
         const existingData = existingDataIdx >= 0 ? acc.splice(existingDataIdx, 1)[0] : null;
         return [...acc, {
             name: expense[field],
@@ -122,4 +122,12 @@ export const isWalletRevisionExpired = (wallet: Wallet) => {
 
 export const getWalletAssetsArray = (wallet: Wallet, assets: Asset[]) => {
     return assets.filter(asset => undefined !== Object.values(wallet.assets).find(wa => wa.id === asset.id));
+}
+
+export const changeEmptyToMisc = (category: string) => {
+    return category.length ? category : 'Miscellaneus';
+}
+
+export const getSubCategoryLabel = (expense: Expense) => {
+    return expense.category + '\\' + expense.subcategory;
 }
