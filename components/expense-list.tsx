@@ -4,25 +4,34 @@ import React, { useState } from 'react';
 import { Modal } from 'react-bootstrap';
 import { Expense } from '../types';
 import { ExpenseWithMonth } from '../types/expense';
-import { formatDate, formatValue, getExpensesWithMonth, toExpensePieData } from '../util/helpers';
+import { formatDate, formatValue, getExpensesWithMonth, getSubCategoryLabel, toExpensePieData } from '../util/helpers';
 import Pie from './charts/pie';
 import ExpenseForm from './expense-form';
 
 type Props = {
     expenses: Expense[]
+    cachedExpenses: Expense[]
     onSubmit: Function
     onBulkCreate: Function
     onDelete: Function
     owner: string
     dateFilter: DateFilter
     onChangeDateFilter: Function
+    filterExpenses: Function
 }
 
 export type DateFilter = { start: string, end: string }
+export type ParamFilter = {
+    account: string[],
+    category: string[],
+    subcategory: string[],
+}
 
-const ExpenseList = ({ expenses, onSubmit, onBulkCreate, onDelete, owner, dateFilter, onChangeDateFilter }: Props) => {
+const ExpenseList = ({ expenses, cachedExpenses, onSubmit, onBulkCreate, onDelete, owner, dateFilter, onChangeDateFilter, filterExpenses }: Props) => {
     const [expense, setExpense] = useState<Expense | null>(null);
     const [charts, setCharts] = useState<boolean>(false);
+    const [hideList, setHideList] = useState<boolean>(false);
+    const [paramFilter, setParamFilter] = useState<ParamFilter>({account:[],category:[],subcategory:[]});
     const totalExpenses = expenses.reduce((sum, expense) => sum + parseFloat('' + expense.value ?? 0), 0);
     let newDateFilter = dateFilter;
 
@@ -57,17 +66,19 @@ const ExpenseList = ({ expenses, onSubmit, onBulkCreate, onDelete, owner, dateFi
 
     const handleFilterSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const id = event.target.id;
-        const field = id.slice(0,-6);
-        const value = event.target.value;
-        
+        const field = id.slice(0, -6) as 'account' | 'category' | 'subcategory';
+        const filter = {
+            ...paramFilter,
+            [field]:event.target.value ? [event.target.value] : []
+        };
+        console.log(field);
+        setParamFilter(filter);
+        console.log(filter);
+        filterExpenses(filter);
     }
 
     const getFilterLabel = (name: 'category' | 'subcategory' | 'account', expenses: Expense[]) => {
-        return expenses.reduce((acc: string[], expense) => { return acc.includes(expense[name]) ? acc : [...acc, expense[name]] }, [])
-    }
-
-    const changeEmptyToMisc = (category: string) => {
-        return category.length ? category : 'Miscellaneus';
+        return expenses.reduce((acc: string[], expense) => { return acc.includes(expense[name].trim()) ? acc : [...acc, expense[name].trim()] }, [])
     }
 
     const getAccount = (expenses: Expense[]) => {
@@ -80,14 +91,14 @@ const ExpenseList = ({ expenses, onSubmit, onBulkCreate, onDelete, owner, dateFi
     const getCategory = (expenses: Expense[]) => {
         return expenses.map(expense => ({
             ...expense,
-            category: changeEmptyToMisc(expense.category)
+            category: expense.category
         })) as ExpenseWithMonth[];
     }
 
     const getSubCategory = (expenses: Expense[]) => {
         return expenses.map(expense => ({
             ...expense,
-            subcategory: changeEmptyToMisc(expense.category) + '\\' + changeEmptyToMisc(expense.subcategory)
+            subcategory: getSubCategoryLabel(expense)
         })) as ExpenseWithMonth[];
     }
 
@@ -127,7 +138,7 @@ const ExpenseList = ({ expenses, onSubmit, onBulkCreate, onDelete, owner, dateFi
                         <a className="btn btn-dark w-100" onClick={() => setCharts(!charts)}>Charts</a>
                     </div>
                 </div>
-                {!charts || expenses.length < 1 ? '' : <>
+                {!charts || cachedExpenses.length < 1 ? '' : <>
                     <div className="row mt-5 mb-5">
                         <div className="col-md-6">
                             <Pie data={toExpensePieData(getAccount(expenses), 'account')} graphId='expensesComposition' title='Expenses' format={(v: string) => '€' + formatValue(v)} />
@@ -149,23 +160,26 @@ const ExpenseList = ({ expenses, onSubmit, onBulkCreate, onDelete, owner, dateFi
                             <div className="mb-3">
                                 <label htmlFor="accountFilter" className="form-label">Account</label>
                                 <select required className="form-control" onChange={handleFilterSelectChange} id="accountFilter" >
-                                    {getFilterLabel('account',expenses).map(label => <option key={label} value={label}>{label}</option>)}
+                                    <option key='none'></option>
+                                    {getFilterLabel('account', getAccount(cachedExpenses)).map(label => <option key={label} value={label}>{label}</option>)}
                                 </select>
                             </div>
                         </div>
                         <div className="col-md-4">
                             <div className="mb-3">
-                                <label htmlFor="accountFilter" className="form-label">Account</label>
+                                <label htmlFor="categoryFilter" className="form-label">Category</label>
                                 <select required className="form-control" onChange={handleFilterSelectChange} id="categoryFilter" >
-                                    {getFilterLabel('category',expenses).map(label => <option key={label} value={label}>{label}</option>)}
+                                    <option key='none'></option>
+                                    {getFilterLabel('category', cachedExpenses).map(label => <option key={label} value={label}>{label}</option>)}
                                 </select>
                             </div>
                         </div>
                         <div className="col-md-4">
                             <div className="mb-3">
-                                <label htmlFor="accountFilter" className="form-label">Account</label>
+                                <label htmlFor="subcategoryFilter" className="form-label">SubCategory</label>
                                 <select required className="form-control" onChange={handleFilterSelectChange} id="subcategoryFilter" >
-                                    {getFilterLabel('subcategory',expenses).map(label => <option key={label} value={label}>{label}</option>)}
+                                    <option key='none'></option>
+                                    {getFilterLabel('subcategory', getSubCategory(cachedExpenses)).map(label => <option key={label} value={label}>{label}</option>)}
                                 </select>
                             </div>
                         </div>
@@ -173,7 +187,7 @@ const ExpenseList = ({ expenses, onSubmit, onBulkCreate, onDelete, owner, dateFi
                 <div className="row">
                     <div className="col-12">
                         <ul className="list-group mb-5">
-                            <li className="list-group-item bg-dark text-white" key="header">
+                            <li className="list-group-item bg-dark text-white" key="header" onClick={() => { setHideList(!hideList) }}>
                                 <div className="row d-none d-sm-flex">
                                     <div className="col-sm-2 p-1 p-lg-2 text-center">Label</div>
                                     <div className="col-sm-2 p-1 p-lg-2 text-center">Category</div>
@@ -184,7 +198,7 @@ const ExpenseList = ({ expenses, onSubmit, onBulkCreate, onDelete, owner, dateFi
                                     <div className="col-sm-1 p-1 p-lg-2 text-center">Action</div>
                                 </div>
                             </li>
-                            {expenses.map(expense => {
+                            {hideList ? '' : expenses.map(expense => {
                                 return (
                                     <li className="list-group-item" key={expense.id}>
                                         <div className="row">
@@ -245,14 +259,6 @@ const ExpenseList = ({ expenses, onSubmit, onBulkCreate, onDelete, owner, dateFi
                             </Modal>}
                     </div>
                 </div>
-                {/*                 <div className="row mb-5">
-                    <div className="col-md-6">
-                        <Pie data={toPieData(expenses, 'name', 'targetRatio')} graphId='targetComposition' title='Target Composition' />
-                    </div>
-                    <div className="mt-5 mt-md-0 col-md-6">
-                        <Pie data={toPieData(expenses, 'name')} graphId='expensesComposition' title='expenses Composition' />
-                    </div>
-                </div> */}
             </div>
         </div>
     );
