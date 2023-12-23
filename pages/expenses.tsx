@@ -138,7 +138,8 @@ const Home = (props: ServerProps) => {
           onChangeDateFilter={setDateFilter} 
           filterExpenses={filterExpenses}
           dateFilter={dateFilter} 
-          owner={props.authUserId} />
+          owner={props.authUserId}
+          expensesMonthlyBudget={config?.expensesMonthlyBudget} />
       </FireDreamContainer>
       <footer className={styles.footer}>
         <a
