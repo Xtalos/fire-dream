@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+import { ChartConfiguration } from 'c3';
 import moment from 'moment';
 import React, { useState } from 'react';
 import { Modal } from 'react-bootstrap';
@@ -6,6 +7,7 @@ import { Expense } from '../types';
 import { ExpenseWithMonth } from '../types/expense';
 import { formatDate, formatValue, getExpensesWithMonth, getSubCategoryLabel, toExpensePieData } from '../util/helpers';
 import Pie from './charts/pie';
+import TimeSeriesChart from './charts/time-series-chart';
 import ExpenseForm from './expense-form';
 
 type Props = {
@@ -32,8 +34,20 @@ const ExpenseList = ({ expenses, cachedExpenses, onSubmit, onBulkCreate, onDelet
     const [charts, setCharts] = useState<boolean>(false);
     const [hideList, setHideList] = useState<boolean>(false);
     const [paramFilter, setParamFilter] = useState<ParamFilter>({account:[],category:[],subcategory:[]});
-    const totalExpenses = expenses.reduce((sum, expense) => sum + parseFloat('' + expense.value ?? 0), 0);
+    const expensesFilteredByTime = expenses.filter(e => moment.unix(e.createdOn).isBetween(moment(dateFilter.start),moment(dateFilter.end)));
+    const totalExpenses = expensesFilteredByTime.reduce((sum, expense) => sum + parseFloat('' + expense.value ?? 0), 0);
     let newDateFilter = dateFilter;
+
+    const timeChartsConfig = {
+        axis: {
+            x: {
+              type: 'timeseries',
+              tick: {
+                format: '%b'
+              }
+            }
+          }
+    } as ChartConfiguration
 
     const addExpense = () => {
         setExpense({
@@ -110,6 +124,21 @@ const ExpenseList = ({ expenses, cachedExpenses, onSubmit, onBulkCreate, onDelet
         onChangeDateFilter(newDateFilter);
     }
 
+    const expensesByMonth = (expenses:Expense[]) => {
+        return expenses.reduce((acc:[string[],any[]],expense) => {
+            const month = formatDate(expense.createdOn,'YYYY-MM-15') as string;
+            const idx = acc[0].findIndex(m => m==month);
+            if (-1 == idx) {
+                acc[0].push(month);
+                acc[1].push(parseFloat(''+expense.value));
+            } else {
+                acc[1][idx]+=parseFloat(''+expense.value)
+            }
+
+            return acc;
+        },[['x'],['values']]);
+    }
+
     return (
         <div className="row">
             <div className="col-lg-10 offset-lg-1">
@@ -139,20 +168,25 @@ const ExpenseList = ({ expenses, cachedExpenses, onSubmit, onBulkCreate, onDelet
                     </div>
                 </div>
                 {!charts || cachedExpenses.length < 1 ? '' : <>
-                    <div className="row mt-5 mb-5">
-                        <div className="col-md-6">
-                            <Pie data={toExpensePieData(getAccount(expenses), 'account')} graphId='expensesComposition' title='Expenses' format={(v: string) => '€' + formatValue(v)} />
-                        </div>
-                        <div className="mt-5 mt-md-0 col-md-6">
-                            <Pie data={toExpensePieData(getExpensesWithMonth(expenses), 'month')} graphId='expMonthComposition' title='Month' format={(v: string) => '€' + formatValue(v)} />
+                <div className="row mt-5 mb-5">
+                        <div className="col-md-12">
+                            <TimeSeriesChart data={expensesByMonth(expenses)} graphId='expensesTimeCharts' title='Expenses By Month' configOverride={timeChartsConfig}/>
                         </div>
                     </div>
                     <div className="row mb-5">
                         <div className="col-md-6">
-                            <Pie data={toExpensePieData(getCategory(expenses), 'category')} graphId='expCategoryComposition' title='Categories' format={(v: string) => '€' + formatValue(v)} />
+                            <Pie data={toExpensePieData(getAccount(expensesFilteredByTime), 'account')} graphId='expensesComposition' title='Expenses' format={(v: string) => '€' + formatValue(v)} />
                         </div>
                         <div className="mt-5 mt-md-0 col-md-6">
-                            <Pie data={toExpensePieData(getSubCategory(expenses), 'subcategory')} graphId='expSubcategoryComposition' title='Sub Categories' format={(v: string) => '€' + formatValue(v)} />
+                            <Pie data={toExpensePieData(getExpensesWithMonth(expensesFilteredByTime), 'month')} graphId='expMonthComposition' title='Month' format={(v: string) => '€' + formatValue(v)} />
+                        </div>
+                    </div>
+                    <div className="row mb-5">
+                        <div className="col-md-6">
+                            <Pie data={toExpensePieData(getCategory(expensesFilteredByTime), 'category')} graphId='expCategoryComposition' title='Categories' format={(v: string) => '€' + formatValue(v)} />
+                        </div>
+                        <div className="mt-5 mt-md-0 col-md-6">
+                            <Pie data={toExpensePieData(getSubCategory(expensesFilteredByTime), 'subcategory')} graphId='expSubcategoryComposition' title='Sub Categories' format={(v: string) => '€' + formatValue(v)} />
                         </div>
                     </div>
                     <div className="row mb-5">
@@ -198,7 +232,7 @@ const ExpenseList = ({ expenses, cachedExpenses, onSubmit, onBulkCreate, onDelet
                                     <div className="col-sm-1 p-1 p-lg-2 text-center">Action</div>
                                 </div>
                             </li>
-                            {hideList ? '' : expenses.map(expense => {
+                            {hideList ? '' : expensesFilteredByTime.map(expense => {
                                 return (
                                     <li className="list-group-item" key={expense.id}>
                                         <div className="row">
