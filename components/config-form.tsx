@@ -35,7 +35,7 @@ const ConfigForm = ({ config, onSubmit, updateQuotesUrl }: Props) => {
                     <div className="row">
                         <div className="col-md-6">
                             <div className="mb-3">
-                                <label htmlFor="chartPeriodMonths" className="form-label">Chart Period Months</label>
+                                <label htmlFor="chartPeriodMonths" className="form-label">Investments Chart Period Months</label>
                                 <input type="text" className="form-control" onChange={handleChange} id="chartPeriodMonths" defaultValue={config?.chartPeriodMonths} />
                             </div>
                         </div>
@@ -57,6 +57,14 @@ const ConfigForm = ({ config, onSubmit, updateQuotesUrl }: Props) => {
                             <div className="mb-3">
                                 <label htmlFor="updateQuotesUrl" className="form-label">Update Quotes Url</label>
                                 <input type="text" className="form-control" role="button" onClick={copyUrl} readOnly id="updateQuotesUrl" defaultValue={updateQuotesUrl}/>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col-md-6">
+                            <div className="mb-3">
+                                <label htmlFor="expensesMonthlyBudget" className="form-label">Expenses Monthly Budget</label>
+                                <input type="number" className="form-control" onChange={handleChange} id="expensesMonthlyBudget" defaultValue={config?.expensesMonthlyBudget} />
                             </div>
                         </div>
                     </div>

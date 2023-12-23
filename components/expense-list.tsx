@@ -13,6 +13,7 @@ import ExpenseForm from './expense-form';
 type Props = {
     expenses: Expense[]
     cachedExpenses: Expense[]
+    expensesMonthlyBudget?: number
     onSubmit: Function
     onBulkCreate: Function
     onDelete: Function
@@ -29,7 +30,7 @@ export type ParamFilter = {
     subcategory: string[],
 }
 
-const ExpenseList = ({ expenses, cachedExpenses, onSubmit, onBulkCreate, onDelete, owner, dateFilter, onChangeDateFilter, filterExpenses }: Props) => {
+const ExpenseList = ({ expenses, cachedExpenses, onSubmit, onBulkCreate, onDelete, owner, dateFilter, onChangeDateFilter, filterExpenses, expensesMonthlyBudget }: Props) => {
     const [expense, setExpense] = useState<Expense | null>(null);
     const [charts, setCharts] = useState<boolean>(false);
     const [hideList, setHideList] = useState<boolean>(false);
@@ -125,18 +126,19 @@ const ExpenseList = ({ expenses, cachedExpenses, onSubmit, onBulkCreate, onDelet
     }
 
     const expensesByMonth = (expenses:Expense[]) => {
-        return expenses.reduce((acc:[string[],any[]],expense) => {
+        return expenses.reduce((acc:[string[],any[],any[]],expense) => {
             const month = formatDate(expense.createdOn,'YYYY-MM-15') as string;
             const idx = acc[0].findIndex(m => m==month);
             if (-1 == idx) {
                 acc[0].push(month);
                 acc[1].push(parseFloat(''+expense.value));
+                acc[2].push(parseFloat(''+expensesMonthlyBudget));
             } else {
-                acc[1][idx]+=parseFloat(''+expense.value)
+                acc[1][idx]+=parseFloat(''+expense.value);
             }
 
             return acc;
-        },[['x'],['values']]);
+        },[['x'],['Total (€)'],['Budget ('+expensesMonthlyBudget+'€)']]);
     }
 
     return (
