@@ -36,12 +36,16 @@ const Home = (props: ServerProps) => {
   };
 
   const getExpenses = async (fltr: DateFilter) => {
-    let start = fltr.start;
+    let oneYearAgo = moment().subtract(1, 'year');
+    const getFromDB = cachedExpenses.length == 0 || moment(fltr.start).isBefore(oneYearAgo);
+    let start = moment(fltr.start).isBefore(oneYearAgo) ? fltr.start : oneYearAgo.format('YYYY-MM-DD');
     let end = fltr.end;
-    const exp = await getExpensesByPeriod(props.authUserId, start, end);
-    const e = exp.map(e => ({...e,category:changeEmptyToMisc(e.category),subcategory:changeEmptyToMisc(e.subcategory)}));
-    setExpenses(e);
-    setCachedExpenses(e);
+    let exp = getFromDB ? await getExpensesByPeriod(props.authUserId, start, end) : cachedExpenses;
+    exp = exp.map(e => ({...e,category:changeEmptyToMisc(e.category),subcategory:changeEmptyToMisc(e.subcategory)}));
+    if (getFromDB)  {
+      setCachedExpenses(exp);
+    }
+    setExpenses(exp);
   }
 
   const filterExpenses = async (fltr: ParamFilter) => {
