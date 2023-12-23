@@ -24,7 +24,7 @@ const TimeSeriesChart = ({ data, graphId, title, configOverride }: Props) => {
         columns: data
       },
       tooltip: {
-        position: function (data, width, height, element) {
+        position: function (data: any, width: number, height: number, element: any) {
           var containerWidth, tooltipWidth, x, containerLeft;
 
           containerWidth = container.clientWidth;
