@@ -9,7 +9,7 @@ type Props = {
     onSubmit: Function
     onBulkCreate: Function
     owner: string
-    config: Config
+    config?: Config
 }
 
 const ExpenseForm = ({ expense, onSubmit, onBulkCreate, owner, config }: Props) => {
@@ -45,7 +45,7 @@ const ExpenseForm = ({ expense, onSubmit, onBulkCreate, owner, config }: Props) 
         const value = event.target.value;
         expenseModified = { ...expenseModified, [id]: value };
         if (id=='category') {
-            setSubcategories(getSubCategories(config));
+            setSubcategories(getSubCategories());
         }
     }
 
@@ -57,24 +57,24 @@ const ExpenseForm = ({ expense, onSubmit, onBulkCreate, owner, config }: Props) 
         expenseModified = { ...expenseModified, [id]: value };
     }
 
-    const getCategories = (config: Config): string[] => {
+    const getCategories = (): string[] => {
         try {
-            const expensesCategories = JSON.parse(config.expensesCategories);
+            const expensesCategories = JSON.parse(config?.expensesCategories ?? '');
             return Object.keys(expensesCategories);
         } catch (e) {
             return [];
         }
     }
 
-    const getSubCategories = (config: Config): string[] => {
+    const getSubCategories = (): string[] => {
         try {
-            const expensesCategories = JSON.parse(config.expensesCategories);
+            const expensesCategories = JSON.parse(config?.expensesCategories ?? '');
             return expensesCategories[expenseModified.category];
         } catch (e) {
             return [];
         }
     }
-    const [subcategories,setSubcategories] = useState<string[]>(getSubCategories(config));
+    const [subcategories,setSubcategories] = useState<string[]>(getSubCategories());
 
     // Callback from a <input type="file" onchange="onChange(event)">
     const onFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -155,7 +155,7 @@ const ExpenseForm = ({ expense, onSubmit, onBulkCreate, owner, config }: Props) 
                                     <select required className="form-control" onChange={handleChange} id="category" defaultValue={expense?.category}>
                                         <option></option>
                                         {
-                                            getCategories(config).map(c => (<option key={c} value={c}>{c}</option>))
+                                            getCategories().map(c => (<option key={c} value={c}>{c}</option>))
                                         }
                                     </select>
                                 </div>
