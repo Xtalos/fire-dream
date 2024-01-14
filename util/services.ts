@@ -5,7 +5,6 @@ import { firestore } from './firebase-client';
 import { formatValue, getCalculatedValues } from './helpers';
 import moment from 'moment';
 import AssetValueCache from '../types/asset-value-cache';
-import { AssetValue } from '../components';
 
 
 export const updateQuotes = async (assets: Asset[], config?: Config) => {
