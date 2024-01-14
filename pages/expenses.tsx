@@ -2,31 +2,24 @@ import Head from 'next/head';
 import { FireDreamContainer } from '../components';
 import styles from '../styles/Home.module.css'
 import { firestore } from '../util/firebase-client';
-import { collection, QueryDocumentSnapshot, DocumentData, query, where, getDocs } from "@firebase/firestore";
 import { useEffect, useState } from 'react';
-import { Config, Expense, Wallet } from '../types';
+import { Config, Expense } from '../types';
 import { getServerSidePropsWithAuth, ServerProps } from '../util/get-server-side-props-with-auth';
-import WalletList from '../components/wallet-list';
-import { bulkCreate, deleteFromDB, getExpensesByPeriod, getUpdateQuotesUrl, saveOnDB, updateWalletsQuotes } from '../util/services';
-import { useRouter } from 'next/router';
-import { doc, getDoc, orderBy } from 'firebase/firestore';
+import { bulkCreate, deleteFromDB, getExpensesByPeriod, saveOnDB } from '../util/services';
+import { doc, getDoc } from 'firebase/firestore';
 import Swal from 'sweetalert2';
-import axios from 'axios';
 import ExpenseList, { DateFilter, ParamFilter } from '../components/expense-list';
 import moment from 'moment';
 import { changeEmptyToMisc, getSubCategoryLabel } from '../util/helpers';
 
-const ExpenseCollection = collection(firestore, 'expenses');
-
 export const getServerSideProps = getServerSidePropsWithAuth;
 
 const Home = (props: ServerProps) => {
-  const router = useRouter();
   const configRef = doc(firestore, 'config/' + props.authUserId);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [cachedExpenses, setCachedExpenses] = useState<Expense[]>([]);
   const [config, setConfig] = useState<Config>();
-  const defaultDateFilter = {start:moment().subtract(1, 'month').format('YYYY-MM-DD'), end:moment().format('YYYY-MM-DD')};
+  const defaultDateFilter = {start:moment().subtract(1, 'month').format('YYYY-MM-DD'), end:moment().add(1,'day').format('YYYY-MM-DD')};
   const [dateFilter, setDateFilter] = useState<DateFilter>(defaultDateFilter);
 
   const getConfig = async () => {
@@ -35,9 +28,9 @@ const Home = (props: ServerProps) => {
     setConfig(c);
   };
 
-  const getExpenses = async (fltr: DateFilter) => {
+  const getExpenses = async (fltr: DateFilter, forceGetFromDB:boolean = false) => {
     let oneYearAgo = moment().subtract(1, 'year');
-    const getFromDB = cachedExpenses.length == 0 || moment(fltr.start).isBefore(oneYearAgo);
+    const getFromDB = forceGetFromDB || cachedExpenses.length == 0 || moment(fltr.start).isBefore(oneYearAgo);
     let start = moment(fltr.start).isBefore(oneYearAgo) ? fltr.start : oneYearAgo.format('YYYY-MM-DD');
     let end = fltr.end;
     let exp = getFromDB ? await getExpensesByPeriod(props.authUserId, start, end) : cachedExpenses;
@@ -67,7 +60,7 @@ const Home = (props: ServerProps) => {
         'Expense saved successfully!',
         'success'
       );
-      await getExpenses(dateFilter);
+      await getExpenses(dateFilter, true);
       return true;
     } catch (e) {
       console.error(e);
@@ -84,7 +77,7 @@ const Home = (props: ServerProps) => {
         'Expenses bulk created successfully!',
         'success'
       );
-      await getExpenses(dateFilter);
+      await getExpenses(dateFilter, true);
       return true;
     } catch (e) {
       console.error(e);
@@ -104,7 +97,7 @@ const Home = (props: ServerProps) => {
         'Expense saved successfully!',
         'success'
       );
-      await getExpenses(dateFilter);
+      await getExpenses(dateFilter, true);
       return true;
     } catch (e) {
       console.error(e);
@@ -139,7 +132,7 @@ const Home = (props: ServerProps) => {
           filterExpenses={filterExpenses}
           dateFilter={dateFilter} 
           owner={props.authUserId}
-          expensesMonthlyBudget={config?.expensesMonthlyBudget} />
+          config={config} />
       </FireDreamContainer>
       <footer className={styles.footer}>
         <a

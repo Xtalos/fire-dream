@@ -12,7 +12,6 @@ type Props = {
 }
 
 const Pie = ({ data, graphId, title, format }: Props) => {
-  console.log(data,title);
   useEffect(() => {
     const columns = data.reduce((acc: any[], d) => [...acc, [d.name, d.value]], []);
     import('c3').then(c3 => {

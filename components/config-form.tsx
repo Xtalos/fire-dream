@@ -15,7 +15,7 @@ const ConfigForm = ({ config, onSubmit, updateQuotesUrl }: Props) => {
         event.preventDefault();
     }
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const id = event.target.id;
         const value = event.target.value;
         configModified = { ...configModified, [id]: value };
@@ -68,6 +68,14 @@ const ConfigForm = ({ config, onSubmit, updateQuotesUrl }: Props) => {
                             </div>
                         </div>
                     </div>
+                    <div className="row">
+                            <div className="col-md-12">
+                                <div className="mb-3">
+                                    <label htmlFor="expensesCategories" className="form-label">Expense Categories JSON</label>
+                                    <textarea className="form-control" onChange={handleChange} rows={6} id="expensesCategories" defaultValue={config?.expensesCategories} />
+                                </div>
+                            </div>
+                        </div>
                     <div className="row">
                         <div className="col-12">
                             <div className="mt-5 mb-3 text-center">
