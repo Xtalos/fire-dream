@@ -1,7 +1,7 @@
 import moment from 'moment';
 import React, { useState } from 'react';
 import Swal from 'sweetalert2';
-import { Expense } from '../types';
+import { Config, Expense } from '../types';
 import { formatDate } from '../util/helpers';
 
 type Props = {
@@ -9,9 +9,10 @@ type Props = {
     onSubmit: Function
     onBulkCreate: Function
     owner: string
+    config: Config
 }
 
-const ExpenseForm = ({ expense, onSubmit, onBulkCreate, owner }: Props) => {
+const ExpenseForm = ({ expense, onSubmit, onBulkCreate, owner, config }: Props) => {
     let expenseModified = expense;
     const [bulkExpenses, setBulkExpenses] = useState<Expense[]>([]);
     const [bulkMode, setBulkMode] = useState<boolean>(false);
@@ -33,10 +34,19 @@ const ExpenseForm = ({ expense, onSubmit, onBulkCreate, owner }: Props) => {
         event.preventDefault();
     }
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const copyAndCreate = () => {
+        const newExpense = { ...expenseModified }
+        delete newExpense.id;
+        onSubmit(newExpense);
+    }
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const id = event.target.id;
         const value = event.target.value;
         expenseModified = { ...expenseModified, [id]: value };
+        if (id=='category') {
+            setSubcategories(getSubCategories(config));
+        }
     }
 
     const handleChangeDate = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,6 +56,25 @@ const ExpenseForm = ({ expense, onSubmit, onBulkCreate, owner }: Props) => {
         const value = parseInt(momentValue.format('X'));
         expenseModified = { ...expenseModified, [id]: value };
     }
+
+    const getCategories = (config: Config): string[] => {
+        try {
+            const expensesCategories = JSON.parse(config.expensesCategories);
+            return Object.keys(expensesCategories);
+        } catch (e) {
+            return [];
+        }
+    }
+
+    const getSubCategories = (config: Config): string[] => {
+        try {
+            const expensesCategories = JSON.parse(config.expensesCategories);
+            return expensesCategories[expenseModified.category];
+        } catch (e) {
+            return [];
+        }
+    }
+    const [subcategories,setSubcategories] = useState<string[]>(getSubCategories(config));
 
     // Callback from a <input type="file" onchange="onChange(event)">
     const onFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,7 +114,7 @@ const ExpenseForm = ({ expense, onSubmit, onBulkCreate, owner }: Props) => {
                     } as Expense
                 });
 
-                setBulkExpenses(bulkData);
+            setBulkExpenses(bulkData);
         };
 
         reader.readAsText(file);
@@ -123,13 +152,23 @@ const ExpenseForm = ({ expense, onSubmit, onBulkCreate, owner }: Props) => {
                             <div className="col-md-6">
                                 <div className="mb-3">
                                     <label htmlFor="category" className="form-label">Category</label>
-                                    <input type="text" className="form-control" onChange={handleChange} id="category" defaultValue={expense?.category} />
+                                    <select required className="form-control" onChange={handleChange} id="category" defaultValue={expense?.category}>
+                                        <option></option>
+                                        {
+                                            getCategories(config).map(c => (<option key={c} value={c}>{c}</option>))
+                                        }
+                                    </select>
                                 </div>
                             </div>
                             <div className="col-md-6">
                                 <div className="mb-3">
                                     <label htmlFor="subcategory" className="form-label">Subcategory</label>
-                                    <input type="text" className="form-control" onChange={handleChange} id="subcategory" defaultValue={expense?.subcategory} />
+                                    <select required className="form-control" onChange={handleChange} id="subcategory" defaultValue={expense?.subcategory}>
+                                        <option></option>
+                                        {
+                                            subcategories?.map(sc => (<option key={sc} value={sc}>{sc}</option>))
+                                        }
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -148,11 +187,18 @@ const ExpenseForm = ({ expense, onSubmit, onBulkCreate, owner }: Props) => {
                         </div>
                     </div>}
                     <div className="row">
-                        <div className="col-12">
+                        <div className={expense.id ? "col-6" : "col-12"}>
                             <div className="mt-5 mb-3 text-center">
                                 <button type="submit" className="btn btn-lg btn-dark">Submit</button>
                             </div>
                         </div>
+                        {expense.id ?
+                            <div className="col-6">
+                                <div className="mt-5 mb-3 text-center">
+                                    <button type="button" onClick={copyAndCreate} className="btn btn-lg btn-dark">Create New</button>
+                                </div>
+                            </div> : ''
+                        }
                     </div>
                 </form>
             </div>

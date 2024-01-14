@@ -3,7 +3,7 @@ import { ChartConfiguration } from 'c3';
 import moment from 'moment';
 import React, { useState } from 'react';
 import { Modal } from 'react-bootstrap';
-import { Expense } from '../types';
+import { Config, Expense } from '../types';
 import { ExpenseWithMonth } from '../types/expense';
 import { formatDate, formatValue, getExpensesWithMonth, getSubCategoryLabel, toExpensePieData } from '../util/helpers';
 import Pie from './charts/pie';
@@ -13,7 +13,7 @@ import ExpenseForm from './expense-form';
 type Props = {
     expenses: Expense[]
     cachedExpenses: Expense[]
-    expensesMonthlyBudget?: number
+    config?: Config
     onSubmit: Function
     onBulkCreate: Function
     onDelete: Function
@@ -30,7 +30,7 @@ export type ParamFilter = {
     subcategory: string[],
 }
 
-const ExpenseList = ({ expenses, cachedExpenses, onSubmit, onBulkCreate, onDelete, owner, dateFilter, onChangeDateFilter, filterExpenses, expensesMonthlyBudget }: Props) => {
+const ExpenseList = ({ expenses, cachedExpenses, onSubmit, onBulkCreate, onDelete, owner, dateFilter, onChangeDateFilter, filterExpenses, config }: Props) => {
     const [expense, setExpense] = useState<Expense | null>(null);
     const [charts, setCharts] = useState<boolean>(false);
     const [hideList, setHideList] = useState<boolean>(false);
@@ -132,13 +132,13 @@ const ExpenseList = ({ expenses, cachedExpenses, onSubmit, onBulkCreate, onDelet
             if (-1 == idx) {
                 acc[0].push(month);
                 acc[1].push(parseFloat(''+expense.value));
-                acc[2].push(parseFloat(''+expensesMonthlyBudget));
+                acc[2].push(parseFloat(''+config?.expensesMonthlyBudget));
             } else {
                 acc[1][idx]+=parseFloat(''+expense.value);
             }
 
             return acc;
-        },[['x'],['Total (€)'],['Budget ('+expensesMonthlyBudget+'€)']]);
+        },[['x'],['Total (€)'],['Budget ('+config?.expensesMonthlyBudget+'€)']]);
     }
 
     return (
@@ -284,15 +284,15 @@ const ExpenseList = ({ expenses, cachedExpenses, onSubmit, onBulkCreate, onDelet
                                 </div>
                             </li>
                         </ul>
-                        {expense &&
+                        {expense ?
                             <Modal show={true} onHide={() => setExpense(null)}>
                                 <Modal.Header closeButton>
                                     <Modal.Title>Expense</Modal.Title>
                                 </Modal.Header>
                                 <Modal.Body>
-                                    <ExpenseForm expense={expense} owner={owner} onSubmit={saveExpense} onBulkCreate={onBulkCreate} />
+                                    <ExpenseForm expense={expense} owner={owner} onSubmit={saveExpense} onBulkCreate={onBulkCreate} config={config}/>
                                 </Modal.Body>
-                            </Modal>}
+                            </Modal> : ''}
                     </div>
                 </div>
             </div>

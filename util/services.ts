@@ -5,6 +5,7 @@ import { firestore } from './firebase-client';
 import { formatValue, getCalculatedValues } from './helpers';
 import moment from 'moment';
 import AssetValueCache from '../types/asset-value-cache';
+import { AssetValue } from '../components';
 
 
 export const updateQuotes = async (assets: Asset[], config?: Config) => {
@@ -127,7 +128,11 @@ const getAssetsValues = async (assets: Asset[], months: number) => {
 
 const calculateTimeSeriesValues = async (assets: Asset[], assetValues: AssetValue[], months: number, normalize = false, benchmarkTax = 0) => {
   const timeAxe = getTimesAxe(months);
-  const firstAssetsDate = moment(assetValues[0]?.createdOn, 'X').format('YYYY-MM-DD');
+  const avMap = splitIntoSingleAssetValues(assetValues);
+  const minAssetsTimestamp = Array.from(avMap.values()).reduce((min:number|null,avs:AssetValue[]) => {
+    return Math.min(avs[0].createdOn,min ?? avs[0].createdOn);
+  },null);
+  const firstAssetsDate = moment(minAssetsTimestamp, 'X').format('YYYY-MM-DD');
   timeAxe[1] = timeAxe[1] != firstAssetsDate ? firstAssetsDate : timeAxe[1];
   const timeAssetValues = assets.reduce((acc: any[], asset: Asset) => {
     const alreadyExists = acc.find(a => a[0] === asset.name);
@@ -140,7 +145,6 @@ const calculateTimeSeriesValues = async (assets: Asset[], assetValues: AssetValu
   }, [timeAxe]);
 
   const timeTotalValues: any[] = [timeAxe, ['total'], ['invested'], ['benchmark']];
-  const avMap = splitIntoSingleAssetValues(assetValues);
   let startingInvested: number, valueRevalued: number;
   let startingDate = timeAxe[1];
   timeAxe.slice(1).forEach((t, i) => {
@@ -186,12 +190,11 @@ const calculateTimeSeriesValues = async (assets: Asset[], assetValues: AssetValu
  * @param {AssetValue[]} assetValues
  * @returns
  */
-const splitIntoSingleAssetValues = (assetValues: AssetValue[]) => {
-  const avMap = new Map();
-  assetValues.forEach(av => {
-    avMap.set(av.assetId, [...(avMap.has(av.assetId) ? avMap.get(av.assetId).filter((a: AssetValue) => a.value && a.quantity) : []), av]);
-  })
-  return avMap;
+const splitIntoSingleAssetValues = (assetValues: AssetValue[]):Map<string,AssetValue[]> => {
+  const avMap = new Map<string,AssetValue[]>();
+  return assetValues.reduce((acc,av:AssetValue) => {
+    return acc.set(av.assetId, [...(acc.has(av.assetId) ? (acc.get(av.assetId)?.filter((a: AssetValue) => a.value && a.quantity) ?? []) : []), av]);
+  },avMap);
 }
 
 /**

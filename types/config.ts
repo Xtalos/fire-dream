@@ -5,6 +5,7 @@ type Config = {
     chartPeriodMonths: number
     officialStartDate: string
     expensesMonthlyBudget: number
+    expensesCategories: string
 }
 
 export default Config;

@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { Asset, Config, Wallet } from '../types';
 import { getServerSidePropsWithAuth, ServerProps } from '../util/get-server-side-props-with-auth';
 import ChartsPanel from '../components/charts-panel';
-import { getOrUpdateCachedValues } from '../util/services';
+import { getOrUpdateCachedValues, getWalletsAndAssets } from '../util/services';
 import Swal from 'sweetalert2';
 import { Form } from 'react-bootstrap';
 import { doc } from 'firebase/firestore';
@@ -36,32 +36,18 @@ const Charts = (props: ServerProps) => {
   };
 
   const getWallets = async () => {
-    const walletsQuery = query(walletsCollection, where('owner', '==', props.authUserId),where('active', '==', true));
-    const querySnapshot = await getDocs(walletsQuery);
-    const result: QueryDocumentSnapshot<DocumentData>[] = [];
-    querySnapshot.forEach((snapshot) => {
-      result.push(snapshot);
-    });
-
-    const w = result.map(item => ({ ...item.data(), id: item.id } as Wallet));
-    const asstPromises = w.filter(wallet => wallet.assets).reduce((acc: Promise<Asset>[], wallet: Wallet): Promise<Asset>[] => {
-      const results = Object.values(wallet.assets).map(async assetRef => {
-        return getDoc(assetRef).then(assetResult => ({ ...assetResult.data(), id: assetRef.id, targetRatio: assetResult.data()?.targetRatio * wallet.targetRatio } as Asset));
-      });
-      return [...acc, ...results]
-    }, []);
-    const a = await Promise.all(asstPromises);
+    const { wallets:w, assets:a } = await getWalletsAndAssets(props.authUserId);
 
     await getConfig();
     setAssets(a);
     setWallets(w);
-    await filterWallets(w, a);
+    await filterWallets(w.filter(wa => wa.type == 'investment'), a);
   };
 
   const updateTimeValues = async (a: Asset[], forceUpdate = false, normalize = false) => {
     if (forceUpdate) (document.getElementById('filterWallet') as HTMLSelectElement).value = 'all';
     let cfg = config || await getConfig();
-    let tv = await getOrUpdateCachedValues(props.authUserId, a, cfg.chartPeriodMonths, forceUpdate, normalize, cfg.revaluationTax || 0);
+    let tv = await getOrUpdateCachedValues(props.authUserId, a, cfg?.chartPeriodMonths ?? 6, forceUpdate, normalize, cfg?.revaluationTax ?? 0);
     tv = {
       timeAssetValues: checkTimeValuesConsistence(tv.timeAssetValues) ? tv.timeAssetValues : [],
       timeCategoryValues: checkTimeValuesConsistence(tv.timeCategoryValues) ? tv.timeCategoryValues : [],
@@ -135,7 +121,7 @@ const Charts = (props: ServerProps) => {
           <div className="col-lg-10 offset-lg-1 text-center">
             <Form.Select aria-label="Filter wallet" id="filterWallet" onChange={filterWalletsHandler}>
               <option value="all">all</option>
-              {wallets.map(wallet => <option key={wallet.id} value={wallet.id}>{wallet.label}</option>)}
+              {wallets.map(wallet => <option key={wallet.id} selected={wallet.type == 'investment'} value={wallet.id}>{wallet.label}</option>)}
             </Form.Select>
           </div>
         </div>
