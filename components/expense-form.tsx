@@ -45,8 +45,9 @@ const ExpenseForm = ({ expense, onSubmit, onBulkCreate, owner, config }: Props) 
         const value = event.target.value;
         expenseModified = { ...expenseModified, [id]: value };
         if (id=='category') {
-            setSubcategories(getSubCategories());
+            drawSubCategories();
         }
+        console.log(expenseModified);
     }
 
     const handleChangeDate = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,12 +70,19 @@ const ExpenseForm = ({ expense, onSubmit, onBulkCreate, owner, config }: Props) 
     const getSubCategories = (): string[] => {
         try {
             const expensesCategories = JSON.parse(config?.expensesCategories ?? '');
-            return expensesCategories[expenseModified.category];
+            return expensesCategories[expenseModified.category] ?? [];
         } catch (e) {
             return [];
         }
     }
-    const [subcategories,setSubcategories] = useState<string[]>(getSubCategories());
+
+    const drawSubCategories = () => {
+        const selectList = document.getElementById('subcategory');
+        if (selectList) {
+            selectList
+            .innerHTML = "<option></option>" + getSubCategories().map(sc => "<option value='"+sc+"'>"+sc+"</option>");
+        }
+    }
 
     // Callback from a <input type="file" onchange="onChange(event)">
     const onFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,22 +137,22 @@ const ExpenseForm = ({ expense, onSubmit, onBulkCreate, owner, config }: Props) 
                             <div className="col-md-6">
                                 <div className="mb-3">
                                     <label htmlFor="label" className="form-label">Label</label>
-                                    <input type="text" className="form-control" onChange={handleChange} id="label" defaultValue={expense?.label} />
+                                    <input type="text" className="form-control" onChange={handleChange} id="label" defaultValue={expenseModified?.label} />
                                 </div>
                                 <div className="mb-3">
                                     <label htmlFor="account" className="form-label">Account</label>
-                                    <input type="numeric" className="form-control" onChange={handleChange} id="account" defaultValue={expense?.account} />
+                                    <input type="numeric" className="form-control" onChange={handleChange} id="account" defaultValue={expenseModified?.account} />
                                 </div>
 
                             </div>
                             <div className="col-md-6">
                                 <div className="mb-3">
                                     <label htmlFor="value" className="form-label">Value</label>
-                                    <input type="numeric" className="form-control" onChange={handleChange} id="value" defaultValue={expense?.value} />
+                                    <input type="numeric" className="form-control" onChange={handleChange} id="value" defaultValue={expenseModified?.value} />
                                 </div>
                                 <div className="mb-3">
                                     <label htmlFor="createdOn" className="form-label">Date</label>
-                                    <input type="date" className="form-control" onChange={handleChangeDate} id="createdOn" defaultValue={formatDate(expense?.createdOn)} />
+                                    <input type="date" className="form-control" onChange={handleChangeDate} id="createdOn" defaultValue={formatDate(expenseModified?.createdOn)} />
                                 </div>
                             </div>
                         </div>
@@ -152,7 +160,7 @@ const ExpenseForm = ({ expense, onSubmit, onBulkCreate, owner, config }: Props) 
                             <div className="col-md-6">
                                 <div className="mb-3">
                                     <label htmlFor="category" className="form-label">Category</label>
-                                    <select required className="form-control" onChange={handleChange} id="category" defaultValue={expense?.category}>
+                                    <select required className="form-control" onChange={handleChange} id="category" defaultValue={expenseModified?.category}>
                                         <option></option>
                                         {
                                             getCategories().map(c => (<option key={c} value={c}>{c}</option>))
@@ -166,7 +174,7 @@ const ExpenseForm = ({ expense, onSubmit, onBulkCreate, owner, config }: Props) 
                                     <select required className="form-control" onChange={handleChange} id="subcategory" defaultValue={expense?.subcategory}>
                                         <option></option>
                                         {
-                                            subcategories?.map(sc => (<option key={sc} value={sc}>{sc}</option>))
+                                            getSubCategories().map(sc => (<option key={sc} value={sc}>{sc}</option>))
                                         }
                                     </select>
                                 </div>
@@ -176,7 +184,7 @@ const ExpenseForm = ({ expense, onSubmit, onBulkCreate, owner, config }: Props) 
                             <div className="col-md-12">
                                 <div className="mb-3">
                                     <label htmlFor="description" className="form-label">Description</label>
-                                    <textarea className="form-control" onChange={handleChange} rows={3} id="description" defaultValue={expense?.description} />
+                                    <textarea className="form-control" onChange={handleChange} rows={3} id="description" defaultValue={expenseModified?.description} />
                                 </div>
                             </div>
                         </div>
