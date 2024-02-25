@@ -21,6 +21,7 @@ const Home = (props: ServerProps) => {
   const [config, setConfig] = useState<Config>();
   const defaultDateFilter = {start:moment().subtract(1, 'month').format('YYYY-MM-DD'), end:moment().add(1,'day').format('YYYY-MM-DD')};
   const [dateFilter, setDateFilter] = useState<DateFilter>(defaultDateFilter);
+  const [dateOrder, setDateOrder] = useState<1|-1>(1);
 
   const getConfig = async () => {
     const result = await getDoc(configRef);
@@ -132,7 +133,9 @@ const Home = (props: ServerProps) => {
           filterExpenses={filterExpenses}
           dateFilter={dateFilter} 
           owner={props.authUserId}
-          config={config} />
+          config={config}
+          order={dateOrder}
+          onChangeOrder={()=>setDateOrder(-dateOrder as 1|-1)} />
       </FireDreamContainer>
       <footer className={styles.footer}>
         <a

@@ -2,7 +2,7 @@ import Head from 'next/head';
 import { FireDreamContainer } from '../components';
 import styles from '../styles/Home.module.css'
 import { firestore } from '../util/firebase-client';
-import { collection, QueryDocumentSnapshot, DocumentData, query, where, getDocs, getDoc } from "@firebase/firestore";
+import { getDoc } from "@firebase/firestore";
 import { useEffect, useState } from 'react';
 import { Asset, Config, Wallet } from '../types';
 import { getServerSidePropsWithAuth, ServerProps } from '../util/get-server-side-props-with-auth';
@@ -11,8 +11,6 @@ import { getOrUpdateCachedValues, getWalletsAndAssets } from '../util/services';
 import Swal from 'sweetalert2';
 import { Form } from 'react-bootstrap';
 import { doc } from 'firebase/firestore';
-
-const walletsCollection = collection(firestore, 'wallets');
 
 export const getServerSideProps = getServerSidePropsWithAuth;
 
@@ -79,6 +77,8 @@ const Charts = (props: ServerProps) => {
     ws.forEach(w => {
       newAssets = newAssets.concat(as.filter(a => undefined !== Object.values(w.assets).find(wa => wa.id == a.id)));
     })
+
+    newAssets = newAssets.filter(a => a.lastQuantity > 0 || a.targetRatio > 0);
 
     return newAssets;
   }

@@ -21,6 +21,8 @@ type Props = {
     dateFilter: DateFilter
     onChangeDateFilter: Function
     filterExpenses: Function
+    order: 1 | -1
+    onChangeOrder: Function
 }
 
 export type DateFilter = { start: string, end: string }
@@ -30,12 +32,12 @@ export type ParamFilter = {
     subcategory: string[],
 }
 
-const ExpenseList = ({ expenses, cachedExpenses, onSubmit, onBulkCreate, onDelete, owner, dateFilter, onChangeDateFilter, filterExpenses, config }: Props) => {
+const ExpenseList = ({ expenses, cachedExpenses, onSubmit, onBulkCreate, onDelete, owner, dateFilter, onChangeDateFilter, filterExpenses, config, order, onChangeOrder }: Props) => {
     const [expense, setExpense] = useState<Expense | null>(null);
     const [charts, setCharts] = useState<boolean>(false);
     const [hideList, setHideList] = useState<boolean>(false);
     const [paramFilter, setParamFilter] = useState<ParamFilter>({account:[],category:[],subcategory:[]});
-    const expensesFilteredByTime = expenses.filter(e => moment.unix(e.createdOn).isBetween(moment(dateFilter.start),moment(dateFilter.end)));
+    const expensesFilteredByTime = expenses.filter(e => moment.unix(e.createdOn).isBetween(moment(dateFilter.start),moment(dateFilter.end))).sort((a,b) => order * (a.createdOn - b.createdOn));
     const totalExpenses = expensesFilteredByTime.reduce((sum, expense) => sum + parseFloat('' + expense.value ?? 0), 0);
     let newDateFilter = dateFilter;
 
@@ -165,8 +167,15 @@ const ExpenseList = ({ expenses, cachedExpenses, onSubmit, onBulkCreate, onDelet
                     <div className="col-md-2 d-flex align-items-end pb-3">
                         <a className="btn btn-dark w-100" onClick={applyDateFilter}>Filter</a>
                     </div>
-                    <div className="col-md-2 d-flex align-items-end pb-3">
-                        <a className="btn btn-dark w-100" onClick={() => setCharts(!charts)}>Charts</a>
+                    <div className="col-md-1 d-flex align-items-end pb-3">
+                        <a className="btn btn-dark w-100" onClick={() => setCharts(!charts)}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-pie-chart-fill" viewBox="0 0 16 16"><path d="M15.985 8.5H8.207l-5.5 5.5a8 8 0 0 0 13.277-5.5zM2 13.292A8 8 0 0 1 7.5.015v7.778zM8.5.015V7.5h7.485A8 8 0 0 0 8.5.015"/></svg>
+                        </a>
+                    </div>
+                    <div className="col-md-1 d-flex align-items-end pb-3">
+                        <a className="btn btn-dark w-100" onClick={() => onChangeOrder()}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-down-up" viewBox="0 0 16 16"><path fillRule="evenodd" d="M11.5 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L11 2.707V14.5a.5.5 0 0 0 .5.5m-7-14a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L4 13.293V1.5a.5.5 0 0 1 .5-.5"/></svg>
+                        </a>
                     </div>
                 </div>
                 {!charts || cachedExpenses.length < 1 ? '' : <>
