@@ -78,8 +78,6 @@ const Charts = (props: ServerProps) => {
       newAssets = newAssets.concat(as.filter(a => undefined !== Object.values(w.assets).find(wa => wa.id == a.id)));
     })
 
-    newAssets = newAssets.filter(a => a.lastQuantity > 0 || a.targetRatio > 0);
-
     return newAssets;
   }
 
