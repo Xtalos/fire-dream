@@ -21,6 +21,15 @@ type Asset = {
     lastQuantity: number
     lastValue: number
     lastInvested: number
+    shares: number
+    earnings: number
+    equity: number
+    longTermDebt: number
+    dividend: number
+    story: string
+    feedback: string
+    stockCategory: string
+    note: string
 }
 
 export default Asset;
