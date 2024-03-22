@@ -6,6 +6,8 @@ type Config = {
     officialStartDate: string
     expensesMonthlyBudget: number
     expensesCategories: string
+    assetCategories: string
+    stockCategories: string
 }
 
 export default Config;

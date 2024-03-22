@@ -23,7 +23,7 @@ const ConfigForm = ({ config, onSubmit, updateQuotesUrl }: Props) => {
 
     const copyUrl = () => {
         console.log('copied');
-        if(updateQuotesUrl) {
+        if (updateQuotesUrl) {
             navigator.clipboard.writeText(updateQuotesUrl);
         }
     }
@@ -56,7 +56,7 @@ const ConfigForm = ({ config, onSubmit, updateQuotesUrl }: Props) => {
                         <div className="col-md-6">
                             <div className="mb-3">
                                 <label htmlFor="updateQuotesUrl" className="form-label">Update Quotes Url</label>
-                                <input type="text" className="form-control" role="button" onClick={copyUrl} readOnly id="updateQuotesUrl" defaultValue={updateQuotesUrl}/>
+                                <input type="text" className="form-control" role="button" onClick={copyUrl} readOnly id="updateQuotesUrl" defaultValue={updateQuotesUrl} />
                             </div>
                         </div>
                     </div>
@@ -69,13 +69,29 @@ const ConfigForm = ({ config, onSubmit, updateQuotesUrl }: Props) => {
                         </div>
                     </div>
                     <div className="row">
-                            <div className="col-md-12">
-                                <div className="mb-3">
-                                    <label htmlFor="expensesCategories" className="form-label">Expense Categories JSON</label>
-                                    <textarea className="form-control" onChange={handleChange} rows={6} id="expensesCategories" defaultValue={config?.expensesCategories} />
-                                </div>
+                        <div className="col-md-12">
+                            <div className="mb-3">
+                                <label htmlFor="expensesCategories" className="form-label">Expense Categories JSON</label>
+                                <textarea className="form-control" onChange={handleChange} rows={6} id="expensesCategories" defaultValue={config?.expensesCategories} />
                             </div>
                         </div>
+                    </div>
+                    <div className="row">
+                        <div className="col-md-12">
+                            <div className="mb-3">
+                                <label htmlFor="assetCategories" className="form-label">Asset Categories Array</label>
+                                <textarea className="form-control" onChange={handleChange} rows={3} id="assetCategories" defaultValue={config?.assetCategories} />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col-md-12">
+                            <div className="mb-3">
+                                <label htmlFor="stockCategories" className="form-label">Stock Categories Array</label>
+                                <textarea className="form-control" onChange={handleChange} rows={3} id="stockCategories" defaultValue={config?.stockCategories} />
+                            </div>
+                        </div>
+                    </div>
                     <div className="row">
                         <div className="col-12">
                             <div className="mt-5 mb-3 text-center">
