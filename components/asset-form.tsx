@@ -51,16 +51,15 @@ const AssetForm = ({ asset, config, onSubmit }: Props) => {
     }
 
     const calculatePE = (asset: Asset) => {
-        const cap = asset?.shares * asset?.lastValue;
-        return asset?.earnings ? formatValue(cap / asset?.earnings) : 'N/D';
+        return asset?.earnings ? formatValue(asset?.lastValue / asset?.earnings) : 'N/D';
     }
 
     const calculateDebtEquity = (asset: Asset) => {
-        return asset?.equity ? formatValue(asset?.longTermDebt / asset?.equity) : 'N/D';
+        return asset?.equity ? formatValue(100*asset?.longTermDebt / asset?.equity) + ' %' : 'N/D';
     }
 
     const calculateDivYeld = (asset: Asset) => {
-        return asset?.lastValue ? formatValue(asset?.dividend / asset?.lastValue) : 'N/D';
+        return asset?.lastValue ? formatValue(100*asset?.dividend / asset?.lastValue) + ' %' : 'N/D';
     }
 
     console.log(asset?.stockCategory, asset?.category);
@@ -150,7 +149,7 @@ const AssetForm = ({ asset, config, onSubmit }: Props) => {
                                 <input type="numeric" className="form-control" onChange={handleChange} id="shares" defaultValue={asset?.shares} />
                             </div>
                             <div className="mb-3">
-                                <label htmlFor="earnings" className="form-label">Earnings</label>
+                                <label htmlFor="earnings" className="form-label">EPS</label>
                                 <input type="numeric" className="form-control" onChange={handleChange} id="earnings" defaultValue={asset?.earnings} />
                             </div>
                             <div className="mb-3">
@@ -168,7 +167,7 @@ const AssetForm = ({ asset, config, onSubmit }: Props) => {
                                 <input type="numeric" className="form-control" onChange={handleChange} id="equity" defaultValue={asset?.equity} />
                             </div>
                             <div className="mb-3">
-                                <label htmlFor="dividend" className="form-label">Dividend</label>
+                                <label htmlFor="dividend" className="form-label">Dividend Per Share</label>
                                 <input type="numeric" className="form-control" onChange={handleChange} id="dividend" defaultValue={asset?.dividend} />
                             </div>
                             <div className="mb-3">
