@@ -7,9 +7,10 @@ type Props = {
     asset: Asset
     config?: Config
     onSubmit: Function
+    isNewAsset: boolean
 }
 
-const AssetForm = ({ asset, config, onSubmit }: Props) => {
+const AssetForm = ({ asset, config, onSubmit, isNewAsset }: Props) => {
     let assetModified = asset;
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -66,7 +67,7 @@ const AssetForm = ({ asset, config, onSubmit }: Props) => {
     return (
         <div className="row">
             <div className="col-lg-10 offset-lg-1">
-                { asset ?
+                { isNewAsset || asset ?
                 <form onSubmit={handleSubmit}>
                     <div className="row mt-5">
                         <div className="col-12">

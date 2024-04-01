@@ -76,7 +76,7 @@ const AssetPage = (props: ServerProps) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <FireDreamContainer breadcrumbItems={breadcrumbItems}>
-        <AssetForm asset={asset?.data() as Asset} config={config} onSubmit={saveAsset} />
+        <AssetForm isNewAsset={id=='new'} asset={asset?.data() as Asset} config={config} onSubmit={saveAsset} />
       </FireDreamContainer>
     </>
   )
