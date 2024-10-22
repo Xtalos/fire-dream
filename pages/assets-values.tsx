@@ -9,6 +9,7 @@ import Swal from 'sweetalert2';
 import { Modal } from 'react-bootstrap';
 import AssetValueTransferForm from '../components/asset-value-transfer-form';
 import { useRouter } from 'next/router';
+import moment from 'moment';
 
 
 export const getServerSideProps = getServerSidePropsWithAuth;
@@ -20,7 +21,10 @@ const AssetsValues = (props: ServerProps) => {
   const [assetsValues, setAssetsValues] = useState<AssetValue[]>([]);
   const [assets, setAssets] = useState<Asset[]>([]);
   const [wallets, setWallets] = useState<Wallet[]>([]);
-  const [filter, setFilter] = useState<{ start?: string, end?: string }>({});
+  const [filter, setFilter] = useState<{ start?: string, end?: string, assetSelected?: string }>({
+    start:moment().format('YYYY-MM-DD'),
+    end:moment().format('YYYY-MM-DD')
+  });
 
   const deleteAssetValue = async (id: string) => {
     try {
@@ -89,7 +93,7 @@ const AssetsValues = (props: ServerProps) => {
   }
 
   const getValues = async (fltr: { start: string, end: string }) => {
-    console.log(filter);
+    console.log(fltr);
     setFilter(fltr);
     const av = await getAssetsValuesByPeriod(assets, fltr.start, fltr.end);
     setAssetsValues(av);
@@ -120,8 +124,8 @@ const AssetsValues = (props: ServerProps) => {
             </div>
           </div>
         </div>
-        <AssetsValuesFilter filter={filter} onFilter={getValues} />
-        {assetsValues.length ? <AssetsValuesFormList assets={assets} assetValues={assetsValues} saveAssetValue={saveAssetValue} deleteAssetValue={deleteAssetValue} /> : <></>}
+        <AssetsValuesFilter filter={filter} assets={assets} onFilter={getValues} />
+        {assetsValues.length ? <AssetsValuesFormList assets={assets} assetValues={assetsValues} saveAssetValue={saveAssetValue} deleteAssetValue={deleteAssetValue} assetSelected={filter.assetSelected}/> : <></>}
         {showTransferForm &&
           <Modal show={showTransferForm} onHide={() => setShowTransferForm(false)}>
             <Modal.Header closeButton>
