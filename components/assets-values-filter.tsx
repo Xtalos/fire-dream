@@ -1,7 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import moment from 'moment';
 import React from 'react';
-import { FormControl, InputGroup } from 'react-bootstrap';
 import { Asset } from '../types';
 
 type Props = {
