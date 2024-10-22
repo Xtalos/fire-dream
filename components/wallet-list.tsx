@@ -38,7 +38,7 @@ const WalletList = ({ wallets, updateQuotes }: Props) => {
                         </Link>
                     </div>
                 </div>
-                {totalTargetRatio != 1 &&
+                {formatRatio(totalTargetRatio) != 100 &&
                     <Alert variant='danger'>
                         Total Target Ratio is {formatRatio(totalTargetRatio)}
                     </Alert>

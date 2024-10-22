@@ -10,9 +10,10 @@ type Props = {
     assetValues: AssetValue[]
     saveAssetValue: Function
     deleteAssetValue: Function
+    assetSelected?: string
 }
 
-const AssetsValuesFormList = ({ assets, assetValues, saveAssetValue, deleteAssetValue }: Props) => {
+const AssetsValuesFormList = ({ assets, assetValues, saveAssetValue, deleteAssetValue, assetSelected }: Props) => {
     const assetMap = new Map<string,Asset>();
     assets.forEach(asset => assetMap.set(asset.id,asset));
 
@@ -49,8 +50,9 @@ const AssetsValuesFormList = ({ assets, assetValues, saveAssetValue, deleteAsset
                                 </div>
                             </li>
                             {assetValues.length ? assetValues.map(assetValue => {
+                                let liClass = !assetSelected || assetValue.assetId == assetSelected ? 'list-group-item' : 'list-group-item d-none';
                                 return (
-                                    <li className="list-group-item" key={assetValue.id}>
+                                    <li className={liClass} key={assetValue.id}>
                                         <div className="row">
                                             <div className="col-lg-2 p-1 p-lg-2 text-center">
                                                 {formatDate(assetValue.createdOn)}
